@@ -1,3 +1,4 @@
 [submodule "BACKEND"]
 	path = BACKEND
-	url = ./BACKEND
+	url = git@github.com:Mrpongalfer/omnimesh.git
+	branch = backend-main
