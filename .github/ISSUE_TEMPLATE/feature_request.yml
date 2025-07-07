@@ -1,0 +1,127 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for OmniTide
+title: "✨ [FEATURE]: "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide as much detail as possible to help us understand your request.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: A clear description of what the problem is. Ex. I'm always frustrated when [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like
+      placeholder: A clear description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered
+      placeholder: A clear description of any alternative solutions or features you've considered.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component would this feature affect?
+      options:
+        - Nexus Prime Core (Rust)
+        - Go Node Proxies
+        - SolidJS Web UI
+        - Flutter Mobile App
+        - Chrome OS Agent
+        - AI Agents
+        - Data Fabric
+        - Kubernetes Deployment
+        - Documentation
+        - CI/CD
+        - Multiple Components
+        - New Component
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature?
+      options:
+        - Low - Nice to have
+        - Medium - Would be helpful
+        - High - Important for users
+        - Critical - Blocking adoption
+    validations:
+      required: true
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: Estimated Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - Low - Simple change
+        - Medium - Moderate effort
+        - High - Significant development
+        - Unknown - Need investigation
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases for this feature
+      placeholder: |
+        1. As a [user type], I want to [action] so that [benefit]
+        2. When [scenario], users need to [requirement]
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what "done" looks like for this feature
+      placeholder: |
+        - [ ] Feature works as described
+        - [ ] Tests pass
+        - [ ] Documentation updated
+        - [ ] Performance meets requirements
+
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: Technical Considerations
+      description: Any technical details, constraints, or considerations
+      placeholder: APIs to integrate, performance requirements, security considerations, etc.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, mockups, or examples about the feature request here
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues for this feature
+          required: true
+        - label: I have provided detailed information about this feature
+          required: true
+        - label: This feature aligns with OmniTide's goals and vision
+          required: true

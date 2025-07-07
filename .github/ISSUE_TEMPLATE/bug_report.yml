@@ -1,0 +1,123 @@
+name: 🐛 Bug Report
+description: Report a bug to help us improve OmniTide
+title: "🐛 [BUG]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please provide as much detail as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear description of what you expected to happen.
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: A clear description of what actually happened.
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component is affected?
+      options:
+        - Nexus Prime Core (Rust)
+        - Go Node Proxies
+        - SolidJS Web UI
+        - Flutter Mobile App
+        - Chrome OS Agent
+        - Kubernetes Deployment
+        - Documentation
+        - CI/CD
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is this bug?
+      options:
+        - Low - Minor issue
+        - Medium - Affects functionality
+        - High - Blocks core features
+        - Critical - System unusable
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please provide environment details
+      value: |
+        - OS: [e.g. Ubuntu 22.04, macOS 13, Windows 11]
+        - Rust version: [e.g. 1.75.0]
+        - Go version: [e.g. 1.23.0]
+        - Docker version: [e.g. 25.0.0]
+        - Kubernetes version: [e.g. 1.28.0]
+        - OmniTide version: [e.g. v1.0.0]
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and Error Messages
+      description: Please copy and paste any relevant log output or error messages
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here (screenshots, etc.)
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues for this bug
+          required: true
+        - label: I have provided all requested information
+          required: true
+        - label: I have tested this on the latest version
+          required: true

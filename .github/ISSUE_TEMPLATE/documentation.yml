@@ -1,0 +1,98 @@
+name: 📚 Documentation Issue
+description: Report issues with documentation or request documentation improvements
+title: "📚 [DOCS]: "
+labels: ["documentation", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve our documentation! Clear documentation is crucial for project success.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Documentation Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - Missing documentation
+        - Incorrect information
+        - Unclear instructions
+        - Outdated content
+        - Broken links
+        - Typos/grammar
+        - Code examples don't work
+        - API documentation
+        - Tutorial improvement
+        - Architecture documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is the documentation issue located?
+      placeholder: |
+        - File: README.md, CONTRIBUTING.md, etc.
+        - Section: Getting Started, API Reference, etc.
+        - URL: https://docs.omnimesh.ai/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: Current Documentation
+      description: What does the current documentation say? (copy/paste or describe)
+      placeholder: Paste the current text or describe what's currently there
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Documentation
+      description: What should the documentation say instead?
+      placeholder: Describe what the correct/improved documentation should contain
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: How does this documentation issue affect users?
+      placeholder: Who is affected and how? New users, developers, operators, etc.
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who is the primary audience for this documentation?
+      options:
+        - New users
+        - Developers
+        - System administrators
+        - Contributors
+        - End users
+        - All audiences
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Suggested Improvements
+      description: Any specific suggestions for improving this documentation?
+      placeholder: Specific text, examples, diagrams, or approaches you'd recommend
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues for this documentation problem
+          required: true
+        - label: I have provided specific details about the location and nature of the issue
+          required: true

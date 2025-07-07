@@ -1,0 +1,296 @@
+name: 🌐 Frontend CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'ui-solidjs/**'
+      - 'ui-flutter/**'
+      - 'agents-chromeos/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'ui-solidjs/**'
+      - 'ui-flutter/**'
+      - 'agents-chromeos/**'
+      - '.github/workflows/frontend-ci.yml'
+
+jobs:
+  solidjs-web:
+    name: 🌐 SolidJS Web App
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui-solidjs
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ui-solidjs/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: 🔍 Lint code
+        run: |
+          if [ -f package.json ] && grep -q '"lint"' package.json; then
+            npm run lint
+          else
+            echo "No lint script found, skipping..."
+          fi
+
+      - name: 🎨 Check formatting
+        run: |
+          if [ -f package.json ] && grep -q '"format:check"' package.json; then
+            npm run format:check
+          else
+            echo "No format check script found, skipping..."
+          fi
+
+      - name: 🧪 Run tests
+        run: |
+          if [ -f package.json ] && grep -q '"test"' package.json; then
+            npm test
+          else
+            echo "No test script found, skipping..."
+          fi
+
+      - name: 🔨 Build application
+        run: |
+          if [ -f package.json ] && grep -q '"build"' package.json; then
+            npm run build
+          else
+            echo "No build script found, skipping..."
+          fi
+
+      - name: 🔍 Lighthouse CI
+        if: github.event_name == 'pull_request'
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './ui-solidjs/lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  flutter-mobile:
+    name: 📱 Flutter Mobile App
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        channel: [stable, beta]
+    defaults:
+      run:
+        working-directory: ui-flutter
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📱 Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0'
+          channel: ${{ matrix.channel }}
+          cache: true
+
+      - name: 📦 Install dependencies
+        run: |
+          if [ -f pubspec.yaml ]; then
+            flutter pub get
+          else
+            echo "No pubspec.yaml found, initializing Flutter project..."
+            flutter create . --platforms=android,ios,macos,windows,linux,web
+            flutter pub get
+          fi
+
+      - name: 🔍 Analyze code
+        run: |
+          if [ -f pubspec.yaml ]; then
+            flutter analyze
+          fi
+
+      - name: 🎨 Check formatting
+        run: |
+          if [ -f pubspec.yaml ]; then
+            dart format --set-exit-if-changed .
+          fi
+
+      - name: 🧪 Run tests
+        run: |
+          if [ -f pubspec.yaml ]; then
+            flutter test
+          fi
+
+      - name: 🔨 Build (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          if [ -f pubspec.yaml ]; then
+            sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
+            flutter config --enable-linux-desktop
+            flutter build linux --release
+          fi
+
+      - name: 🔨 Build (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          if [ -f pubspec.yaml ]; then
+            flutter config --enable-macos-desktop
+            flutter build macos --release
+          fi
+
+      - name: 🔨 Build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          if (Test-Path pubspec.yaml) {
+            flutter config --enable-windows-desktop
+            flutter build windows --release
+          }
+        shell: powershell
+
+      - name: 🌐 Build Web
+        if: matrix.os == 'ubuntu-latest' && matrix.channel == 'stable'
+        run: |
+          if [ -f pubspec.yaml ]; then
+            flutter build web --release
+          fi
+
+  chrome-extension:
+    name: 💻 Chrome OS Extension
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agents-chromeos
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: agents-chromeos/package-lock.json
+
+      - name: 📦 Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+          else
+            echo "Initializing Chrome extension project..."
+            npm init -y
+            npm install -D @types/chrome webpack webpack-cli typescript ts-loader
+          fi
+
+      - name: 🔍 Lint TypeScript
+        run: |
+          if [ -f package.json ] && grep -q '"lint"' package.json; then
+            npm run lint
+          elif [ -f tsconfig.json ]; then
+            npx tsc --noEmit
+          fi
+
+      - name: 🧪 Run tests
+        run: |
+          if [ -f package.json ] && grep -q '"test"' package.json; then
+            npm test
+          fi
+
+      - name: 🔨 Build extension
+        run: |
+          if [ -f package.json ] && grep -q '"build"' package.json; then
+            npm run build
+          elif [ -f webpack.config.js ]; then
+            npx webpack --mode=production
+          fi
+
+      - name: 📦 Package extension
+        run: |
+          if [ -d dist ] || [ -d build ]; then
+            echo "Extension built successfully"
+            ls -la dist/ || ls -la build/ || echo "No build output found"
+          fi
+
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: [solidjs-web, flutter-mobile, chrome-extension]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🐳 Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🚀 Start backend services
+        run: |
+          docker-compose up -d postgres redis
+          sleep 10
+
+      - name: 🧪 Run integration tests
+        run: |
+          if [ -f tests/integration_test.sh ]; then
+            chmod +x tests/integration_test.sh
+            ./tests/integration_test.sh
+          else
+            echo "No integration tests found"
+          fi
+
+      - name: 🛑 Stop services
+        if: always()
+        run: docker-compose down
+
+  deploy-preview:
+    name: 🚀 Deploy Preview
+    runs-on: ubuntu-latest
+    needs: [solidjs-web, flutter-mobile, chrome-extension]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🔨 Build SolidJS app
+        run: |
+          cd ui-solidjs
+          if [ -f package.json ]; then
+            npm install
+            npm run build
+          fi
+
+      - name: 🌐 Deploy to Netlify Preview
+        if: github.event_name == 'pull_request'
+        uses: nwtgck/actions-netlify@v2.1.0
+        with:
+          publish-dir: './ui-solidjs/dist'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions - PR #${{ github.event.number }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: false
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

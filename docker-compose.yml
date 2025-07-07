@@ -1,0 +1,385 @@
+# OmniTide Compute Fabric - Development Environment
+# Complete development setup with all services
+
+version: "3.8"
+
+networks:
+  omnitide:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  nexus_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+services:
+  # Nexus Prime Core (Rust)
+  nexus-prime:
+    build:
+      context: ./nexus-prime-core
+      dockerfile: Dockerfile
+    container_name: omnitide-nexus
+    hostname: nexus-prime
+    restart: unless-stopped
+    ports:
+      - "50053:50053"  # gRPC
+      - "8081:8081"    # WebSocket
+      - "8082:8082"    # HTTP/Metrics
+    volumes:
+      - nexus_data:/app/data
+      - ./config:/etc/omnitide:ro
+    environment:
+      - RUST_LOG=info
+      - NEXUS_GRPC_PORT=50053
+      - NEXUS_WS_PORT=8081
+      - NEXUS_HTTP_PORT=8082
+      - NEXUS_DB_PATH=/app/data/nexus.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.10
+    depends_on:
+      - prometheus
+
+  # Go Node Proxy
+  node-proxy:
+    build:
+      context: ./go-node-proxies
+      dockerfile: Dockerfile
+    container_name: omnitide-proxy
+    hostname: node-proxy
+    restart: unless-stopped
+    ports:
+      - "50052:50052"  # gRPC
+      - "8080:8080"    # HTTP/Metrics
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config:/etc/omnitide:ro
+    environment:
+      - PROXY_GRPC_PORT=50052
+      - PROXY_HTTP_PORT=8080
+      - NEXUS_ADDRESS=nexus-prime:50053
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.20
+    depends_on:
+      nexus-prime:
+        condition: service_healthy
+
+  # Prometheus (Metrics Collection)
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: omnitide-prometheus
+    hostname: prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/rules:/etc/prometheus/rules:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.30
+
+  # Grafana (Metrics Visualization)
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: omnitide-grafana
+    hostname: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=omnitide123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.40
+    depends_on:
+      - prometheus
+
+  # Redis (Caching and Session Storage)
+  redis:
+    image: redis:7.2-alpine
+    container_name: omnitide-redis
+    hostname: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --appendonly yes --requirepass omnitide123
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.50
+
+  # NATS (Message Streaming)
+  nats:
+    image: nats:2.10-alpine
+    container_name: omnitide-nats
+    hostname: nats
+    restart: unless-stopped
+    ports:
+      - "4222:4222"  # Client connections
+      - "8222:8222"  # HTTP monitoring
+    command: ["-js", "-m", "8222"]
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.60
+
+  # Jaeger (Distributed Tracing)
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: omnitide-jaeger
+    hostname: jaeger
+    restart: unless-stopped
+    ports:
+      - "14268:14268"  # HTTP collector
+      - "16686:16686"  # Web UI
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.70
+
+  # Web UI (SolidJS Development)
+  web-ui:
+    build:
+      context: ./ui-solidjs
+      dockerfile: Dockerfile.dev
+    container_name: omnitide-web-ui
+    hostname: web-ui
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./ui-solidjs:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:50053
+      - VITE_WS_URL=ws://localhost:8081
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.80
+    depends_on:
+      - nexus-prime
+
+  # Documentation Server
+  docs:
+    image: nginx:alpine
+    container_name: omnitide-docs
+    hostname: docs
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    volumes:
+      - ./docs/book:/usr/share/nginx/html:ro
+      - ./docs/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.90
+
+  # Load Balancer (for multi-instance testing)
+  nginx:
+    image: nginx:alpine
+    container_name: omnitide-nginx
+    hostname: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.100
+    depends_on:
+      - nexus-prime
+      - node-proxy
+      - web-ui
+
+  # Development Database (PostgreSQL for advanced features)
+  postgres:
+    image: postgres:16-alpine
+    container_name: omnitide-postgres
+    hostname: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      - POSTGRES_DB=omnitide
+      - POSTGRES_USER=omnitide
+      - POSTGRES_PASSWORD=omnitide123
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.110
+
+  # MinIO (S3-compatible object storage)
+  minio:
+    image: minio/minio:latest
+    container_name: omnitide-minio
+    hostname: minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - ./data/minio:/data
+    environment:
+      - MINIO_ROOT_USER=omnitide
+      - MINIO_ROOT_PASSWORD=omnitide123
+    command: server /data --console-address ":9001"
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.120
+
+  # ETCD (Distributed Key-Value Store)
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.10
+    container_name: omnitide-etcd
+    hostname: etcd
+    restart: unless-stopped
+    ports:
+      - "2379:2379"  # Client
+      - "2380:2380"  # Peer
+    environment:
+      - ETCD_NAME=omnitide-etcd
+      - ETCD_DATA_DIR=/etcd-data
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://etcd:2380
+      - ETCD_INITIAL_CLUSTER=omnitide-etcd=http://etcd:2380
+      - ETCD_INITIAL_CLUSTER_TOKEN=omnitide-cluster
+      - ETCD_INITIAL_CLUSTER_STATE=new
+    volumes:
+      - ./data/etcd:/etcd-data
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.130
+
+  # AI Agent Examples
+  agent-synthesizer:
+    image: omnitide/ai-agent-synthesizer:latest
+    container_name: agent-synthesizer-demo
+    hostname: agent-synthesizer
+    restart: "no"  # Managed by node-proxy
+    environment:
+      - AGENT_ID=demo-synthesizer-001
+      - AGENT_TYPE=synthesizer
+      - NODE_ID=node-proxy
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.200
+    depends_on:
+      - node-proxy
+    profiles:
+      - agents  # Use: docker-compose --profile agents up
+
+  agent-protector:
+    image: omnitide/ai-agent-protector:latest
+    container_name: agent-protector-demo
+    hostname: agent-protector
+    restart: "no"  # Managed by node-proxy
+    environment:
+      - AGENT_ID=demo-protector-001
+      - AGENT_TYPE=protector
+      - NODE_ID=node-proxy
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.201
+    depends_on:
+      - node-proxy
+    profiles:
+      - agents
+
+  # Development utilities
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: omnitide-portainer
+    hostname: portainer
+    restart: unless-stopped
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/portainer:/data
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.250
+    profiles:
+      - dev-tools
+
+  # Log aggregation
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: omnitide-loki
+    hostname: loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/local-config.yaml:ro
+      - ./data/loki:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.140
+    profiles:
+      - logging
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: omnitide-promtail
+    hostname: promtail
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/promtail.yml:/etc/promtail/config.yml:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      omnitide:
+        ipv4_address: 172.20.0.141
+    depends_on:
+      - loki
+    profiles:
+      - logging

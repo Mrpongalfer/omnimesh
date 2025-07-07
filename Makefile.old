@@ -1,0 +1,399 @@
+# OmniTide Compute Fabric Makefile
+# Comprehensive automation for development, testing, and deployment
+
+.PHONY: help install build test lint security clean docs deploy
+
+# Default target
+.DEFAULT_GOAL := help
+
+# Colors for output
+RED=\033[0;31m
+GREEN=\033[0;32m
+YELLOW=\033[1;33m
+BLUE=\033[0;34m
+NC=\033[0m # No Color
+
+# Project configuration
+PROJECT_NAME := omnitide
+VERSION := $(shell git describe --tags --always --dirty)
+BUILD_TIME := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+GIT_COMMIT := $(shell git rev-parse HEAD)
+
+# Directories
+NEXUS_DIR := nexus-prime-core
+GO_PROXY_DIR := go-node-proxies
+DOCS_DIR := docs
+SCRIPTS_DIR := scripts
+
+# Build flags
+RUST_FLAGS := --release
+GO_FLAGS := -ldflags="-s -w -X main.Version=$(VERSION) -X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT)"
+
+##@ General
+
+help: ## Display this help
+	@echo "$(BLUE)OmniTide Compute Fabric$(NC)"
+	@echo "$(YELLOW)Version: $(VERSION)$(NC)"
+	@echo ""
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
+
+##@ Development Setup
+
+install: install-rust install-go install-tools ## Install all dependencies and tools
+	@echo "$(GREEN)✓ All dependencies installed$(NC)"
+
+install-rust: ## Install Rust toolchain and components
+	@echo "$(BLUE)Installing Rust toolchain...$(NC)"
+	@rustup update stable
+	@rustup component add clippy rustfmt
+	@cargo install cargo-audit cargo-deny cargo-watch cargo-tarpaulin
+	@echo "$(GREEN)✓ Rust toolchain installed$(NC)"
+
+install-go: ## Install Go toolchain and tools
+	@echo "$(BLUE)Installing Go tools...$(NC)"
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@go install github.com/securecodewarrior/sast-scanner/cmd/gosec@latest
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	@echo "$(GREEN)✓ Go tools installed$(NC)"
+
+install-tools: ## Install additional development tools
+	@echo "$(BLUE)Installing additional tools...$(NC)"
+	@sudo apt-get update && sudo apt-get install -y protobuf-compiler
+	@npm install -g @commitlint/cli @commitlint/config-conventional
+	@pip install pre-commit
+	@echo "$(GREEN)✓ Additional tools installed$(NC)"
+
+setup-dev: install ## Setup complete development environment
+	@echo "$(BLUE)Setting up development environment...$(NC)"
+	@pre-commit install
+	@git config core.hooksPath .githooks
+	@mkdir -p data logs
+	@echo "$(GREEN)✓ Development environment ready$(NC)"
+
+##@ Building
+
+build: build-rust build-go ## Build all components
+	@echo "$(GREEN)✓ All components built$(NC)"
+
+build-rust: ## Build Rust components
+	@echo "$(BLUE)Building Nexus Prime Core (Rust)...$(NC)"
+	@cd $(NEXUS_DIR) && cargo build $(RUST_FLAGS)
+	@echo "$(GREEN)✓ Rust components built$(NC)"
+
+build-go: ## Build Go components
+	@echo "$(BLUE)Building Go Node Proxies...$(NC)"
+	@cd $(GO_PROXY_DIR) && go build $(GO_FLAGS) -o gcnp .
+	@echo "$(GREEN)✓ Go components built$(NC)"
+
+build-debug: ## Build with debug information
+	@echo "$(BLUE)Building debug versions...$(NC)"
+	@cd $(NEXUS_DIR) && cargo build
+	@cd $(GO_PROXY_DIR) && go build -o gcnp-debug .
+	@echo "$(GREEN)✓ Debug builds complete$(NC)"
+
+build-docker: ## Build Docker images
+	@echo "$(BLUE)Building Docker images...$(NC)"
+	@docker build -t omnitide/nexus-prime:$(VERSION) $(NEXUS_DIR)/
+	@docker build -t omnitide/node-proxy:$(VERSION) $(GO_PROXY_DIR)/
+	@echo "$(GREEN)✓ Docker images built$(NC)"
+
+##@ Code Generation
+
+generate: generate-proto generate-docs ## Generate all code and documentation
+	@echo "$(GREEN)✓ All code generated$(NC)"
+
+generate-proto: ## Generate Protocol Buffer code
+	@echo "$(BLUE)Generating Protocol Buffer code...$(NC)"
+	@cd $(NEXUS_DIR) && cargo build  # Runs build.rs for proto generation
+	@cd $(GO_PROXY_DIR) && ./generate_proto.sh
+	@echo "$(GREEN)✓ Protocol Buffer code generated$(NC)"
+
+generate-docs: ## Generate documentation
+	@echo "$(BLUE)Generating documentation...$(NC)"
+	@cd $(NEXUS_DIR) && cargo doc --no-deps
+	@cd $(GO_PROXY_DIR) && go doc -all ./... > ../docs/go-api.md
+	@echo "$(GREEN)✓ Documentation generated$(NC)"
+
+##@ Testing
+
+test: test-rust test-go test-integration ## Run all tests
+	@echo "$(GREEN)✓ All tests passed$(NC)"
+
+test-rust: ## Run Rust tests
+	@echo "$(BLUE)Running Rust tests...$(NC)"
+	@cd $(NEXUS_DIR) && cargo test --release
+
+test-go: ## Run Go tests
+	@echo "$(BLUE)Running Go tests...$(NC)"
+	@cd $(GO_PROXY_DIR) && go test -v ./...
+
+test-integration: ## Run integration tests
+	@echo "$(BLUE)Running integration tests...$(NC)"
+	@cd $(NEXUS_DIR) && cargo test --test integration_test
+	@./scripts/integration-test.sh
+
+test-coverage: ## Generate test coverage reports
+	@echo "$(BLUE)Generating coverage reports...$(NC)"
+	@cd $(NEXUS_DIR) && cargo tarpaulin --out Html --output-dir ../coverage/rust
+	@cd $(GO_PROXY_DIR) && go test -coverprofile=../coverage/go-coverage.out ./...
+	@cd $(GO_PROXY_DIR) && go tool cover -html=../coverage/go-coverage.out -o ../coverage/go-coverage.html
+	@echo "$(GREEN)✓ Coverage reports generated in coverage/$(NC)"
+
+##@ Benchmarking
+
+bench: bench-rust bench-go ## Run all benchmarks
+	@echo "$(GREEN)✓ All benchmarks complete$(NC)"
+
+bench-rust: ## Run Rust benchmarks
+	@echo "$(BLUE)Running Rust benchmarks...$(NC)"
+	@cd $(NEXUS_DIR) && cargo bench
+
+bench-go: ## Run Go benchmarks
+	@echo "$(BLUE)Running Go benchmarks...$(NC)"
+	@cd $(GO_PROXY_DIR) && go test -bench=. -benchmem ./...
+
+bench-load: ## Run load tests
+	@echo "$(BLUE)Running load tests...$(NC)"
+	@./scripts/load-test.sh
+
+##@ Code Quality
+
+lint: lint-rust lint-go ## Lint all code
+	@echo "$(GREEN)✓ All linting complete$(NC)"
+
+lint-rust: ## Lint Rust code
+	@echo "$(BLUE)Linting Rust code...$(NC)"
+	@cd $(NEXUS_DIR) && cargo clippy -- -D warnings
+	@cd $(NEXUS_DIR) && cargo fmt --check
+
+lint-go: ## Lint Go code
+	@echo "$(BLUE)Linting Go code...$(NC)"
+	@cd $(GO_PROXY_DIR) && golangci-lint run
+	@cd $(GO_PROXY_DIR) && go fmt ./...
+
+format: format-rust format-go ## Format all code
+	@echo "$(GREEN)✓ All code formatted$(NC)"
+
+format-rust: ## Format Rust code
+	@echo "$(BLUE)Formatting Rust code...$(NC)"
+	@cd $(NEXUS_DIR) && cargo fmt
+
+format-go: ## Format Go code
+	@echo "$(BLUE)Formatting Go code...$(NC)"
+	@cd $(GO_PROXY_DIR) && go fmt ./...
+
+##@ Security
+
+security: security-rust security-go security-docker ## Run all security checks
+	@echo "$(GREEN)✓ All security checks complete$(NC)"
+
+security-rust: ## Run Rust security checks
+	@echo "$(BLUE)Running Rust security checks...$(NC)"
+	@cd $(NEXUS_DIR) && cargo audit
+	@cd $(NEXUS_DIR) && cargo deny check
+
+security-go: ## Run Go security checks
+	@echo "$(BLUE)Running Go security checks...$(NC)"
+	@cd $(GO_PROXY_DIR) && gosec ./...
+	@cd $(GO_PROXY_DIR) && go mod tidy && go mod verify
+
+security-docker: ## Run Docker security checks
+	@echo "$(BLUE)Running Docker security checks...$(NC)"
+	@docker run --rm -v "$(PWD):/src" securecodewarrior/docker-clair
+	@trivy fs .
+
+##@ Running
+
+run: run-nexus ## Run the complete system
+	@echo "$(GREEN)✓ System started$(NC)"
+
+run-nexus: ## Run Nexus Prime Core
+	@echo "$(BLUE)Starting Nexus Prime Core...$(NC)"
+	@cd $(NEXUS_DIR) && cargo run --release
+
+run-proxy: ## Run Go Node Proxy
+	@echo "$(BLUE)Starting Go Node Proxy...$(NC)"
+	@cd $(GO_PROXY_DIR) && ./gcnp
+
+run-dev: ## Run in development mode with hot reload
+	@echo "$(BLUE)Starting development servers...$(NC)"
+	@cd $(NEXUS_DIR) && cargo watch -x run &
+	@cd $(GO_PROXY_DIR) && go run main.go
+
+run-docker: build-docker ## Run with Docker Compose
+	@echo "$(BLUE)Starting with Docker Compose...$(NC)"
+	@docker-compose up -d
+
+##@ Deployment
+
+deploy: deploy-k8s ## Deploy to Kubernetes
+	@echo "$(GREEN)✓ Deployment complete$(NC)"
+
+deploy-k8s: ## Deploy to Kubernetes
+	@echo "$(BLUE)Deploying to Kubernetes...$(NC)"
+	@kubectl apply -f k8s/namespace.yaml
+	@kubectl apply -f k8s/configmap.yaml
+	@kubectl apply -f k8s/secret.yaml
+	@kubectl apply -f k8s/deployment.yaml
+	@kubectl apply -f k8s/service.yaml
+
+deploy-local: ## Deploy locally with Docker Compose
+	@echo "$(BLUE)Deploying locally...$(NC)"
+	@docker-compose -f docker-compose.local.yml up -d
+
+##@ Monitoring
+
+monitor: ## Start monitoring stack
+	@echo "$(BLUE)Starting monitoring stack...$(NC)"
+	@docker-compose -f monitoring/docker-compose.yml up -d
+
+logs: ## Show logs from all services
+	@echo "$(BLUE)Showing service logs...$(NC)"
+	@docker-compose logs -f
+
+metrics: ## Show current metrics
+	@echo "$(BLUE)Current metrics:$(NC)"
+	@curl -s http://localhost:8082/metrics | grep -E "(nexus_|gcnp_)"
+
+health: ## Check health of all services
+	@echo "$(BLUE)Checking service health...$(NC)"
+	@curl -s http://localhost:8082/health || echo "$(RED)Nexus Prime offline$(NC)"
+	@curl -s http://localhost:8080/healthz || echo "$(RED)Node Proxy offline$(NC)"
+
+##@ Database
+
+db-backup: ## Backup database
+	@echo "$(BLUE)Backing up database...$(NC)"
+	@mkdir -p backups
+	@cp -r $(NEXUS_DIR)/data/nexus.db backups/nexus-$(shell date +%Y%m%d-%H%M%S).db
+	@echo "$(GREEN)✓ Database backed up$(NC)"
+
+db-restore: ## Restore database from backup
+	@echo "$(BLUE)Restoring database...$(NC)"
+	@test -n "$(BACKUP)" || (echo "$(RED)Error: BACKUP variable required$(NC)" && exit 1)
+	@cp $(BACKUP) $(NEXUS_DIR)/data/nexus.db
+	@echo "$(GREEN)✓ Database restored$(NC)"
+
+db-reset: ## Reset database (WARNING: Destructive)
+	@echo "$(YELLOW)WARNING: This will delete all data!$(NC)"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		rm -rf $(NEXUS_DIR)/data/nexus.db*; \
+		echo "\n$(GREEN)✓ Database reset$(NC)"; \
+	else \
+		echo "\n$(BLUE)Operation cancelled$(NC)"; \
+	fi
+
+##@ Utilities
+
+clean: clean-rust clean-go clean-docker ## Clean all build artifacts
+	@echo "$(GREEN)✓ All artifacts cleaned$(NC)"
+
+clean-rust: ## Clean Rust build artifacts
+	@echo "$(BLUE)Cleaning Rust artifacts...$(NC)"
+	@cd $(NEXUS_DIR) && cargo clean
+
+clean-go: ## Clean Go build artifacts
+	@echo "$(BLUE)Cleaning Go artifacts...$(NC)"
+	@cd $(GO_PROXY_DIR) && go clean
+	@rm -f $(GO_PROXY_DIR)/gcnp $(GO_PROXY_DIR)/gcnp-debug
+
+clean-docker: ## Clean Docker images and containers
+	@echo "$(BLUE)Cleaning Docker artifacts...$(NC)"
+	@docker system prune -f
+	@docker image prune -f
+
+reset: clean db-reset ## Complete reset (WARNING: Destructive)
+	@echo "$(GREEN)✓ Complete reset done$(NC)"
+
+update: ## Update all dependencies
+	@echo "$(BLUE)Updating dependencies...$(NC)"
+	@cd $(NEXUS_DIR) && cargo update
+	@cd $(GO_PROXY_DIR) && go get -u ./...
+	@go mod tidy
+	@echo "$(GREEN)✓ Dependencies updated$(NC)"
+
+version: ## Show version information
+	@echo "$(BLUE)Version Information:$(NC)"
+	@echo "Project: $(PROJECT_NAME)"
+	@echo "Version: $(VERSION)"
+	@echo "Build Time: $(BUILD_TIME)"
+	@echo "Git Commit: $(GIT_COMMIT)"
+
+check-deps: ## Check dependency status
+	@echo "$(BLUE)Checking dependencies...$(NC)"
+	@echo "Rust version: $$(rustc --version)"
+	@echo "Go version: $$(go version)"
+	@echo "Docker version: $$(docker --version)"
+	@echo "protoc version: $$(protoc --version)"
+
+##@ Release
+
+release-patch: ## Create patch release
+	@./scripts/release.sh patch
+
+release-minor: ## Create minor release
+	@./scripts/release.sh minor
+
+release-major: ## Create major release
+	@./scripts/release.sh major
+
+changelog: ## Generate changelog
+	@echo "$(BLUE)Generating changelog...$(NC)"
+	@git log --oneline --pretty=format:"- %s" $(shell git describe --tags --abbrev=0)..HEAD > CHANGELOG.tmp
+	@echo "$(GREEN)✓ Changelog generated in CHANGELOG.tmp$(NC)"
+
+##@ CI/CD
+
+ci: lint test security ## Run all CI checks
+	@echo "$(GREEN)✓ All CI checks passed$(NC)"
+
+pre-commit: format lint test-rust test-go ## Pre-commit checks
+	@echo "$(GREEN)✓ Pre-commit checks passed$(NC)"
+
+##@ Documentation
+
+docs: generate-docs ## Build documentation
+	@echo "$(BLUE)Building documentation...$(NC)"
+	@mdbook build docs/
+	@echo "$(GREEN)✓ Documentation built$(NC)"
+
+docs-serve: ## Serve documentation locally
+	@echo "$(BLUE)Serving documentation at http://localhost:3000$(NC)"
+	@mdbook serve docs/ --open
+
+##@ Development Helpers
+
+watch: ## Watch for file changes and rebuild
+	@echo "$(BLUE)Watching for changes...$(NC)"
+	@cargo watch -w $(NEXUS_DIR)/src -x "build --manifest-path=$(NEXUS_DIR)/Cargo.toml" &
+	@cd $(GO_PROXY_DIR) && go run github.com/cosmtrek/air@latest
+
+profile: ## Profile the application
+	@echo "$(BLUE)Profiling application...$(NC)"
+	@cd $(NEXUS_DIR) && cargo build --release
+	@perf record ./$(NEXUS_DIR)/target/release/nexus-prime-core
+	@perf report
+
+debug: ## Start debug session
+	@echo "$(BLUE)Starting debug session...$(NC)"
+	@cd $(NEXUS_DIR) && rust-gdb ./target/debug/nexus-prime-core
+
+##@ Troubleshooting
+
+troubleshoot: ## Run troubleshooting checks
+	@echo "$(BLUE)Running troubleshooting checks...$(NC)"
+	@./scripts/troubleshoot.sh
+
+fix-permissions: ## Fix file permissions
+	@echo "$(BLUE)Fixing permissions...$(NC)"
+	@chmod +x scripts/*.sh
+	@chmod +x $(GO_PROXY_DIR)/generate_proto.sh
+
+verify-setup: ## Verify development setup
+	@echo "$(BLUE)Verifying setup...$(NC)"
+	@./scripts/verify-setup.sh
+
+# Include additional makefiles if they exist
+-include Makefile.local

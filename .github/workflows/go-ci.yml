@@ -1,0 +1,222 @@
+name: 🐹 Go Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'go-node-proxies/**'
+      - '.github/workflows/go-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'go-node-proxies/**'
+      - '.github/workflows/go-ci.yml'
+
+env:
+  GO_VERSION: '1.23'
+
+jobs:
+  lint:
+    name: 🔍 Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐹 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: 📦 Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: 📋 Check formatting
+        run: |
+          cd go-node-proxies
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "Code is not formatted properly:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+      - name: 🔧 Install golangci-lint
+        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
+
+      - name: 🔍 Run linters
+        run: |
+          cd go-node-proxies
+          $(go env GOPATH)/bin/golangci-lint run --timeout=5m
+
+  test:
+    name: 🧪 Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        go-version: ['1.22', '1.23']
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐹 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: 📦 Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go-version }}-
+
+      - name: 🔧 Install protobuf compiler
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y protobuf-compiler
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install protobuf
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install protoc
+          fi
+        shell: bash
+
+      - name: 📦 Download dependencies
+        run: |
+          cd go-node-proxies
+          go mod download
+
+      - name: 🔨 Build
+        run: |
+          cd go-node-proxies
+          go build -v ./...
+
+      - name: 🧪 Run tests
+        run: |
+          cd go-node-proxies
+          go test -v -race -coverprofile=coverage.out ./...
+
+      - name: 📊 Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.23'
+        uses: codecov/codecov-action@v4
+        with:
+          file: go-node-proxies/coverage.out
+          flags: go
+          name: go-coverage
+
+  security:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐹 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: 🔒 Run Gosec Security Scanner
+        uses: securecodewarrior/github-action-gosec@master
+        with:
+          args: '-fmt sarif -out gosec.sarif ./go-node-proxies/...'
+
+      - name: 📊 Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: gosec.sarif
+
+      - name: 🛡️ Run govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          cd go-node-proxies
+          govulncheck ./...
+
+  benchmark:
+    name: ⚡ Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐹 Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: 📦 Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-benchmark-${{ hashFiles('**/go.sum') }}
+
+      - name: 🔧 Install protobuf compiler
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
+      - name: ⚡ Run benchmarks
+        run: |
+          cd go-node-proxies
+          go test -bench=. -benchmem ./... | tee benchmark-results.txt
+
+      - name: 📊 Store benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'go'
+          output-file-path: go-node-proxies/benchmark-results.txt
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+
+  docker:
+    name: 🐳 Docker Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Login to Container Registry
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📋 Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/go-node-proxies
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🔨 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: go-node-proxies
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64

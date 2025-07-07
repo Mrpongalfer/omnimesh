@@ -1,0 +1,215 @@
+name: 🦀 Rust Backend CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'nexus-prime-core/**'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'nexus-prime-core/**'
+      - '.github/workflows/rust-ci.yml'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+  check:
+    name: 🔍 Check & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🦀 Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: 📦 Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            nexus-prime-core/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 📋 Check formatting
+        run: |
+          cd nexus-prime-core
+          cargo fmt --all -- --check
+
+      - name: 📝 Run Clippy
+        run: |
+          cd nexus-prime-core
+          cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: 🔍 Check code
+        run: |
+          cd nexus-prime-core
+          cargo check --all-targets --all-features
+
+  test:
+    name: 🧪 Test Suite
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: [stable, beta]
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🦀 Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+
+      - name: 📦 Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            nexus-prime-core/target
+          key: ${{ runner.os }}-${{ matrix.rust }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 🔧 Install protobuf compiler
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update && sudo apt-get install -y protobuf-compiler
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install protobuf
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install protoc
+          fi
+        shell: bash
+
+      - name: 🧪 Run tests
+        run: |
+          cd nexus-prime-core
+          cargo test --all-features --verbose
+        env:
+          RUST_BACKTRACE: 1
+
+      - name: 📊 Run tests with coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
+        run: |
+          cd nexus-prime-core
+          cargo install cargo-tarpaulin
+          cargo tarpaulin --all-features --workspace --timeout 120 --out xml
+
+      - name: 📈 Upload coverage to Codecov
+        if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable'
+        uses: codecov/codecov-action@v4
+        with:
+          file: nexus-prime-core/cobertura.xml
+          flags: rust
+          name: rust-coverage
+
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🦀 Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 🔒 Install cargo-audit
+        run: cargo install cargo-audit
+
+      - name: 🔍 Run security audit
+        run: |
+          cd nexus-prime-core
+          cargo audit
+
+      - name: 🛡️ Install cargo-deny
+        run: cargo install cargo-deny
+
+      - name: 🚫 Run cargo-deny
+        run: |
+          cd nexus-prime-core
+          cargo deny check
+
+  benchmark:
+    name: ⚡ Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🦀 Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 📦 Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            nexus-prime-core/target
+          key: ${{ runner.os }}-benchmark-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: 🔧 Install protobuf compiler
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
+      - name: ⚡ Run benchmarks
+        run: |
+          cd nexus-prime-core
+          cargo bench --all-features | tee benchmark-results.txt
+
+      - name: 📊 Store benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'cargo'
+          output-file-path: nexus-prime-core/benchmark-results.txt
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+
+  docker:
+    name: 🐳 Docker Build
+    runs-on: ubuntu-latest
+    needs: [check, test]
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Login to Container Registry
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📋 Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/nexus-prime-core
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🔨 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: nexus-prime-core
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
