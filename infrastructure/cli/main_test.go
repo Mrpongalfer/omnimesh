@@ -1,17 +1,17 @@
 package main
 
 import (
-	"testing"
 	"os"
 	"path/filepath"
 	"strings"
+	"testing"
 )
 
 func TestCLIVersion(t *testing.T) {
 	// Test that the CLI reports a version
 	cmd := rootCmd
 	cmd.SetArgs([]string{"--version"})
-	
+
 	err := cmd.Execute()
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
@@ -22,7 +22,7 @@ func TestCLIHelp(t *testing.T) {
 	// Test that the CLI shows help
 	cmd := rootCmd
 	cmd.SetArgs([]string{"--help"})
-	
+
 	err := cmd.Execute()
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
@@ -35,13 +35,13 @@ func TestConfigPaths(t *testing.T) {
 	if err != nil {
 		t.Skip("Cannot get user home directory")
 	}
-	
+
 	configPaths := []string{
 		".",
 		filepath.Join(homeDir, ".config", "omni-cli"),
 		homeDir,
 	}
-	
+
 	for _, path := range configPaths {
 		if _, err := os.Stat(path); err != nil && !os.IsNotExist(err) {
 			t.Errorf("Error checking path %s: %v", path, err)
@@ -65,7 +65,7 @@ func TestCommandStructure(t *testing.T) {
 		"dashboard",
 		"config",
 	}
-	
+
 	for _, cmdName := range expectedCommands {
 		found := false
 		for _, cmd := range rootCmd.Commands() {
@@ -86,7 +86,7 @@ func TestInfraCommandStructure(t *testing.T) {
 	if infraCmd == nil {
 		t.Fatal("infra command not found")
 	}
-	
+
 	expectedSubcommands := []string{"up", "down", "status"}
 	for _, subCmd := range expectedSubcommands {
 		found := false
@@ -111,7 +111,7 @@ func TestFlagRegistration(t *testing.T) {
 		"verbose",
 		"dry-run",
 	}
-	
+
 	for _, flagName := range expectedFlags {
 		flag := rootCmd.PersistentFlags().Lookup(flagName)
 		if flag == nil {
@@ -137,15 +137,15 @@ func TestRootCommandMetadata(t *testing.T) {
 	if rootCmd.Use == "" {
 		t.Error("Root command has no usage string")
 	}
-	
+
 	if rootCmd.Short == "" {
 		t.Error("Root command has no short description")
 	}
-	
+
 	if rootCmd.Long == "" {
 		t.Error("Root command has no long description")
 	}
-	
+
 	if rootCmd.Version == "" {
 		t.Error("Root command has no version")
 	}
@@ -161,14 +161,14 @@ func TestExampleUsage(t *testing.T) {
 func TestCommandUsage(t *testing.T) {
 	// Test that commands have proper usage strings
 	commands := []string{"infra", "build", "deploy", "logs"}
-	
+
 	for _, cmdName := range commands {
 		cmd := rootCmd.Find([]string{cmdName})
 		if cmd == nil {
 			t.Errorf("Command %s not found", cmdName)
 			continue
 		}
-		
+
 		if cmd.Use == "" {
 			t.Errorf("Command %s has no usage string", cmdName)
 		}
