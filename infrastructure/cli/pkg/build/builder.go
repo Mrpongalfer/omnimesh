@@ -218,6 +218,32 @@ func (b *Builder) BuildAll(ctx context.Context, tag string, push bool) error {
 	return nil
 }
 
+// GetVersionFromGit gets the current version from git
+func GetVersionFromGit() string {
+	// Try to get version from git tag
+	if cmd := exec.Command("git", "describe", "--tags", "--always", "--dirty"); cmd != nil {
+		if output, err := cmd.Output(); err == nil {
+			version := strings.TrimSpace(string(output))
+			if version != "" {
+				return version
+			}
+		}
+	}
+
+	// Fallback to commit hash
+	if cmd := exec.Command("git", "rev-parse", "--short", "HEAD"); cmd != nil {
+		if output, err := cmd.Output(); err == nil {
+			hash := strings.TrimSpace(string(output))
+			if hash != "" {
+				return hash
+			}
+		}
+	}
+
+	// Final fallback
+	return "latest"
+}
+
 // GetComponent finds a component by name
 func (b *Builder) GetComponent(name string) (*Component, error) {
 	components, err := b.DetectComponents()

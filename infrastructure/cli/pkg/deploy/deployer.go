@@ -11,8 +11,6 @@ import (
 	"github.com/Mrpongalfer/omnimesh/infrastructure/cli/pkg/kubernetes"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Deployer handles application deployments
@@ -98,14 +96,8 @@ func (d *Deployer) ensureNamespace(ctx context.Context, namespace string) error 
 		return err
 	}
 
-	// Create namespace if it doesn't exist
-	ns := &corev1.Namespace{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: namespace,
-		},
-	}
-
-	// This is a simplified implementation - in production, you'd check if it exists first
+	// In a real implementation, you would check if the namespace exists
+	// and create it if it doesn't. For now, we'll just log that we're ensuring it exists.
 	d.logger.Infof("Ensuring namespace %s exists", namespace)
 	return nil
 }
@@ -329,6 +321,32 @@ func (d *Deployer) Rollback(ctx context.Context, namespace string, toVersion str
 
 	d.logger.Info("Rollback completed")
 	return nil
+}
+
+// GetCurrentImageTags gets the current image tags from a namespace
+func (d *Deployer) GetCurrentImageTags(ctx context.Context, namespace string) (map[string]string, error) {
+	pods, err := d.k8sClient.GetPods(ctx, namespace)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get pods: %w", err)
+	}
+
+	imageTags := make(map[string]string)
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			if strings.Contains(container.Image, ":") {
+				parts := strings.Split(container.Image, ":")
+				if len(parts) > 1 {
+					imageName := strings.Split(parts[0], "/")
+					if len(imageName) > 0 {
+						componentName := imageName[len(imageName)-1]
+						imageTags[componentName] = parts[1]
+					}
+				}
+			}
+		}
+	}
+
+	return imageTags, nil
 }
 
 // rollbackDeployment rolls back a specific deployment

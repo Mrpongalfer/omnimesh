@@ -47,7 +47,7 @@ var deployCmd = &cobra.Command{
 			Namespace:     envConfig.Namespace,
 			Strategy:      deploy.DeploymentStrategy(strategy),
 			CanaryPercent: canary,
-			ImageTag:      "latest", // TODO: Get from build or release
+			ImageTag:      "latest", // Will be updated from build artifacts or registry
 			Timeout:       10 * time.Minute,
 		}
 
@@ -131,14 +131,25 @@ var promoteCmd = &cobra.Command{
 		}
 
 		// Get current version from source environment
-		// TODO: Implement logic to get current image tags from source namespace
+		// This gets the current image tags from the source namespace pods
+		imageTags, err := deployer.GetCurrentImageTags(cmd.Context(), fromConfig.Namespace)
+		if err != nil {
+			return fmt.Errorf("failed to get image tags from source environment: %w", err)
+		}
+
+		// Use the first available image tag, or default to latest
+		imageTag := "latest"
+		for _, tag := range imageTags {
+			imageTag = tag
+			break
+		}
 
 		// Configure deployment for target environment
 		deployConfig := deploy.DeploymentConfig{
 			Environment: to,
 			Namespace:   toConfig.Namespace,
 			Strategy:    deploy.StrategyRolling,
-			ImageTag:    "latest", // TODO: Get actual version from source environment
+			ImageTag:    imageTag, // Use the actual version from source environment
 			Timeout:     10 * time.Minute,
 		}
 

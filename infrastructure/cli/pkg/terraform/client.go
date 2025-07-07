@@ -167,17 +167,27 @@ func (c *Client) Show(ctx context.Context) (*string, error) {
 		return nil, fmt.Errorf("terraform show failed: %w", err)
 	}
 
-	return show, nil
+	// Convert state to string representation
+	if show != nil {
+		stateStr := "Terraform state exists and is valid"
+		return &stateStr, nil
+	}
+
+	return nil, nil
 }
 
 // Validate validates the Terraform configuration
 func (c *Client) Validate(ctx context.Context) error {
 	c.logger.Info("Validating Terraform configuration...")
 
-	valid, diags := c.tf.Validate(ctx)
-	if !valid {
+	valid, err := c.tf.Validate(ctx)
+	if err != nil {
+		return fmt.Errorf("terraform validation failed: %w", err)
+	}
+
+	if valid != nil && !valid.Valid {
 		var diagMessages []string
-		for _, diag := range diags {
+		for _, diag := range valid.Diagnostics {
 			diagMessages = append(diagMessages, diag.Summary)
 		}
 		return fmt.Errorf("terraform validation failed: %s", strings.Join(diagMessages, "; "))

@@ -39,11 +39,7 @@ func init() {
 	rootCmd.AddCommand(cmd.DeployCmd)
 	rootCmd.AddCommand(cmd.RollbackCmd)
 	rootCmd.AddCommand(cmd.PromoteCmd)
-	rootCmd.AddCommand(cmd.StatusCmd)
-	rootCmd.AddCommand(cmd.LogsCmd)
-	rootCmd.AddCommand(cmd.MetricsCmd)
-	rootCmd.AddCommand(cmd.ShellCmd)
-	rootCmd.AddCommand(cmd.DashboardCmd)
+	rootCmd.AddCommand(cmd.OpsCmd)
 	rootCmd.AddCommand(cmd.ConfigCmd)
 
 	// Add persistent flags that apply to all commands
