@@ -51,8 +51,11 @@ The FRONTEND directory contains the UI components:
 ### Clone the Repository
 
 ```bash
+# Clone the main repository
 git clone https://github.com/Mrpongalfer/omnimesh.git
 cd omnimesh
+
+# Initialize and update the BACKEND submodule (backend-main branch)
 git submodule update --init --recursive
 ```
 
