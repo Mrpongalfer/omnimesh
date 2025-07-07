@@ -1,0 +1,50 @@
+# Code owners for automatic review assignment
+# Global ownership - requires review from core team
+* @omnitide/core-team
+
+# Documentation requires technical writers
+*.md @omnitide/technical-writers @omnitide/core-team
+docs/ @omnitide/technical-writers @omnitide/core-team
+README.md @omnitide/technical-writers @omnitide/core-team
+
+# Security-critical files require security team review
+SECURITY.md @omnitide/security-team @omnitide/core-team
+.github/workflows/ @omnitide/devops-team @omnitide/security-team
+vite.config.ts @omnitide/frontend-team @omnitide/security-team
+package.json @omnitide/frontend-team @omnitide/security-team
+
+# Frontend code requires frontend team review
+src/ @omnitide/frontend-team
+*.ts @omnitide/frontend-team
+*.tsx @omnitide/frontend-team
+*.css @omnitide/frontend-team
+
+# Configuration files require senior review
+*.config.* @omnitide/senior-engineers
+tsconfig*.json @omnitide/frontend-team @omnitide/senior-engineers
+eslint.config.js @omnitide/frontend-team @omnitide/senior-engineers
+tailwind.config.js @omnitide/frontend-team @omnitide/senior-engineers
+
+# Testing requires QA team review
+tests/ @omnitide/qa-team @omnitide/frontend-team
+*.test.ts @omnitide/qa-team @omnitide/frontend-team
+*.spec.ts @omnitide/qa-team @omnitide/frontend-team
+playwright.config.ts @omnitide/qa-team @omnitide/frontend-team
+vitest.config.ts @omnitide/qa-team @omnitide/frontend-team
+
+# Infrastructure and deployment
+docker/ @omnitide/devops-team @omnitide/security-team
+k8s/ @omnitide/devops-team @omnitide/security-team
+.github/ @omnitide/devops-team @omnitide/core-team
+
+# Architecture decisions require architecture review
+docs/ADR.md @omnitide/architects @omnitide/core-team
+OMNITIDE_CODEX.md @omnitide/architects @omnitide/core-team
+
+# Performance-critical files
+src/services/visualizationManager.ts @omnitide/performance-team @omnitide/frontend-team
+src/components/FabricMap.tsx @omnitide/performance-team @omnitide/frontend-team
+
+# AI/ML components require AI team review
+src/services/aiInference.ts @omnitide/ai-team @omnitide/frontend-team
+src/workers/ @omnitide/ai-team @omnitide/frontend-team

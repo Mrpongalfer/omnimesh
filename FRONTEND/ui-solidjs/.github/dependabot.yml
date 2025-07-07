@@ -1,0 +1,109 @@
+# 🤖 Dependabot Configuration
+# Automated dependency updates for Omnitide Control Panel
+
+version: 2
+updates:
+  # NPM package updates
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'omnitide/core-team'
+    assignees:
+      - 'omnitide/maintainers'
+    commit-message:
+      prefix: 'deps'
+      prefix-development: 'deps-dev'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'automated'
+    # Group updates for better management
+    groups:
+      # Frontend framework updates
+      solid-ecosystem:
+        patterns:
+          - 'solid-js'
+          - '@solidjs/*'
+          - 'solid-*'
+      # Build and dev tools
+      build-tools:
+        patterns:
+          - 'vite'
+          - '@vitejs/*'
+          - 'vitest'
+          - 'playwright'
+          - '@playwright/*'
+          - 'typescript'
+          - 'eslint'
+          - '@eslint/*'
+          - 'prettier'
+      # UI and styling
+      ui-libraries:
+        patterns:
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'pixijs'
+          - 'pixi.js'
+          - 'd3'
+          - 'd3-*'
+      # Testing frameworks
+      testing:
+        patterns:
+          - 'vitest'
+          - '@vitest/*'
+          - 'playwright'
+          - '@playwright/*'
+          - 'jsdom'
+          - '@testing-library/*'
+    # Ignore specific updates
+    ignore:
+      # Ignore major version updates for stability
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+      # Ignore specific packages that require manual review
+      - dependency-name: 'solid-js'
+        update-types: ['version-update:semver-major']
+
+  # GitHub Actions updates
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '10:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'omnitide/devops-team'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+    labels:
+      - 'github-actions'
+      - 'ci/cd'
+      - 'automated'
+
+  # Docker updates (if applicable)
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'tuesday'
+      time: '09:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 3
+    reviewers:
+      - 'omnitide/devops-team'
+    commit-message:
+      prefix: 'docker'
+      include: 'scope'
+    labels:
+      - 'docker'
+      - 'infrastructure'
+      - 'automated'

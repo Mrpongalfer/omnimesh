@@ -1,0 +1,128 @@
+{
+  "name": "@omnitide/control-panel",
+  "version": "1.0.0",
+  "description": "Next-generation agent orchestration interface built with cutting-edge web technologies",
+  "type": "module",
+  "private": true,
+  "author": "Omnitide Team",
+  "license": "MIT",
+  "homepage": "https://github.com/omnitide/control-panel#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/omnitide/control-panel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/omnitide/control-panel/issues"
+  },
+  "keywords": [
+    "solid-js",
+    "typescript",
+    "vite",
+    "tailwindcss",
+    "agent-orchestration",
+    "real-time",
+    "control-panel",
+    "cyberpunk-ui"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "vite --host --port 5173",
+    "dev:https": "vite --host --port 5174 --https",
+    "build": "npm run type-check && vite build",
+    "preview": "vite preview --host --port 4173",
+    "type-check": "tsc --noEmit --incremental",
+    "lint": "eslint src --ext .ts,.tsx --fix --max-warnings 0",
+    "lint:check": "eslint src --ext .ts,.tsx --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest",
+    "test:ui": "vitest --ui --open",
+    "test:coverage": "vitest --coverage --reporter=verbose",
+    "test:watch": "vitest --watch",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
+    "e2e:headed": "playwright test --headed",
+    "analyze": "npx vite-bundle-analyzer dist",
+    "bundle:analyze": "npm run build && npm run analyze",
+    "perf": "lighthouse http://localhost:4173 --output json --output html --output-path ./reports/lighthouse",
+    "perf:ci": "lhci autorun || true",
+    "deps:check": "npm audit && npm outdated",
+    "deps:update": "npm update && npm audit fix",
+    "deps:upgrade": "npx npm-check-updates -u && npm install",
+    "clean": "rm -rf dist node_modules/.cache .turbo coverage reports",
+    "clean:install": "npm run clean && npm install",
+    "doctor": "npm run type-check && npm run lint:check && npm run format:check && npm run test:coverage",
+    "setup": "npm install && npx husky install",
+    "codegen": "protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --ts_out=./src/proto --proto_path=./src/proto ./src/proto/*.proto",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "build-storybook": "storybook build",
+    "docs:dev": "vitepress dev docs --port 3000",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up",
+    "deploy:staging": "npm run build && aws s3 sync dist/ s3://omnitide-staging --delete",
+    "deploy:prod": "npm run build && aws s3 sync dist/ s3://omnitide-production --delete && aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths '/*'",
+    "backup": "git add . && git commit -m 'backup: automated state save' || true",
+    "memory:profile": "node --inspect --max-old-space-size=4096 scripts/memory-profile.js",
+    "postinstall": "husky install || true"
+  },
+  "dependencies": {
+    "@types/d3": "^7.4.3",
+    "d3": "^7.9.0",
+    "pixi.js": "^8.11.0",
+    "protobufjs": "^7.5.3",
+    "solid-js": "^1.9.7"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@playwright/test": "^1.49.0",
+    "@tailwindcss/postcss": "^4.1.11",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/solid": "^1.8.3",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/parser": "^8.35.1",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-a11y": "^1.0.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.5.1",
+    "eslint-plugin-solid": "^0.14.5",
+    "happy-dom": "^15.11.7",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.8",
+    "tailwindcss": "^4.1.11",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-bundle-analyzer": "^0.12.1",
+    "vite-plugin-pwa": "^0.25.1",
+    "vite-plugin-solid": "^2.11.6",
+    "vitest": "^2.1.8",
+    "workbox-window": "^7.4.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --max-warnings 0",
+      "prettier --write"
+    ],
+    "*.{js,json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}

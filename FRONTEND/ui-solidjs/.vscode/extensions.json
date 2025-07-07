@@ -1,0 +1,55 @@
+{
+  "recommendations": [
+    // Core development
+    "ms-vscode.vscode-typescript-next",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+
+    // Solid.js and React ecosystem
+    "bradlc.vscode-tailwindcss",
+    "formulahendry.auto-rename-tag",
+    "ms-vscode.vscode-json",
+
+    // Testing
+    "ms-playwright.playwright",
+    "zixuanchen.vitest-explorer",
+
+    // Git and GitHub
+    "github.copilot",
+    "github.copilot-chat",
+    "github.vscode-pull-request-github",
+    "eamodio.gitlens",
+
+    // Productivity
+    "christian-kohler.path-intellisense",
+    "ms-vscode.vscode-todo-highlight",
+    "gruntfuggly.todo-tree",
+    "aaron-bond.better-comments",
+
+    // Documentation
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+
+    // DevOps and deployment
+    "redhat.vscode-yaml",
+    "ms-vscode-remote.remote-containers",
+
+    // Code quality
+    "sonarsource.sonarlint-vscode",
+    "streetsidesoftware.code-spell-checker",
+
+    // Accessibility
+    "deque-systems.vscode-axe-linter",
+
+    // Performance monitoring
+    "ms-vscode.vscode-edge-devtools"
+  ],
+  "unwantedRecommendations": [
+    // Avoid conflicting formatters
+    "hookyqr.beautify",
+    "ms-vscode.vscode-typescript",
+
+    // Avoid outdated React extensions for Solid.js
+    "ms-vscode.vscode-react-native"
+  ]
+}

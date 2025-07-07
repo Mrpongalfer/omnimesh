@@ -1,0 +1,87 @@
+name: Code Quality and Security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 8 * * 1' # Run every Monday at 8:00 UTC
+
+jobs:
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Rust Security Audit
+      uses: actions-rs/audit-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Go Security Check
+      uses: securego/gosec@master
+      with:
+        args: ./go-node-proxies/...
+    
+    - name: Docker Image Scan
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'table'
+        exit-code: '1'
+        severity: 'CRITICAL,HIGH'
+    
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v3
+      with:
+        fail-on-severity: high
+  
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        components: clippy
+    
+    - name: Rust Clippy
+      working-directory: ./nexus-prime-core
+      run: cargo clippy -- -D warnings
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23'
+    
+    - name: Go Vet
+      working-directory: ./go-node-proxies
+      run: go vet ./...
+      
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: ESLint
+      working-directory: ./ui-solidjs
+      run: |
+        npm ci
+        npm run lint

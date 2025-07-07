@@ -1,0 +1,81 @@
+# Git LFS for large assets
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.webp filter=lfs diff=lfs merge=lfs -text
+*.avif filter=lfs diff=lfs merge=lfs -text
+*.svg filter=lfs diff=lfs merge=lfs -text
+*.woff filter=lfs diff=lfs merge=lfs -text
+*.woff2 filter=lfs diff=lfs merge=lfs -text
+*.ttf filter=lfs diff=lfs merge=lfs -text
+*.otf filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
+*.webm filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.tar.gz filter=lfs diff=lfs merge=lfs -text
+
+# Line ending normalization
+* text=auto eol=lf
+
+# Source code
+*.js text eol=lf
+*.jsx text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+README text eol=lf
+LICENSE text eol=lf
+CHANGELOG text eol=lf
+
+# Configuration files
+*.config.js text eol=lf
+*.config.ts text eol=lf
+*.config.json text eol=lf
+.env* text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Archives (binary)
+*.zip binary
+*.tar binary
+*.gz binary
+*.7z binary
+
+# Executables (binary)
+*.exe binary
+*.app binary
+*.deb binary
+*.rpm binary
+
+# Language-specific settings
+*.proto linguist-language=Protocol-Buffer
+*.pb.js linguist-generated=true
+*.pb.ts linguist-generated=true
+dist/* linguist-generated=true
+coverage/* linguist-generated=true
+node_modules/* linguist-vendored=true
+*.min.js linguist-generated=true
+*.min.css linguist-generated=true
+
+# Export ignore (for git archive)
+.github/ export-ignore
+.vscode/ export-ignore
+tests/ export-ignore
+docs/ export-ignore
+*.test.ts export-ignore
+*.spec.ts export-ignore
+coverage/ export-ignore
+.nyc_output/ export-ignore
+test-results/ export-ignore
+playwright-report/ export-ignore
