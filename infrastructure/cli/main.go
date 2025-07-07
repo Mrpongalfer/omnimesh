@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/Mrpongalfer/omnimesh/infrastructure/cli/cmd"
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -44,7 +44,8 @@ func init() {
 	rootCmd.AddCommand(cmd.MetricsCmd)
 	rootCmd.AddCommand(cmd.ShellCmd)
 	rootCmd.AddCommand(cmd.DashboardCmd)
-	
+	rootCmd.AddCommand(cmd.ConfigCmd)
+
 	// Add persistent flags that apply to all commands
 	rootCmd.PersistentFlags().StringP("config", "c", "", "config file (default is $HOME/.omni-cli.yaml)")
 	rootCmd.PersistentFlags().StringP("project", "p", "", "GCP project ID")

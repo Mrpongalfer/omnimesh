@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/Mrpongalfer/omnimesh/infrastructure/cli/pkg/config"
+	"github.com/Mrpongalfer/omnimesh/infrastructure/cli/pkg/ops"
 	"github.com/spf13/cobra"
 )
 
@@ -12,15 +15,33 @@ var statusCmd = &cobra.Command{
 	Long:  `Display comprehensive status of all OmniTide components.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("📊 OmniTide System Status")
-		fmt.Println("=" * 50)
-		
-		// TODO: Implement status checking
-		// 1. Check GKE cluster health
-		// 2. Check all deployments status
-		// 3. Check service endpoints
-		// 4. Check resource utilization
-		// 5. Check ArgoCD sync status
-		
+		fmt.Println(strings.Repeat("=", 50))
+
+		// Load configuration
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
+		}
+
+		// Get default environment or use dev
+		env := "dev"
+		envConfig := cfg.GetEnvConfig(env)
+
+		// Initialize operator
+		operator, err := ops.NewOperator()
+		if err != nil {
+			return fmt.Errorf("failed to create operator: %w", err)
+		}
+
+		// Get system status
+		status, err := operator.GetSystemStatus(cmd.Context(), envConfig.Namespace)
+		if err != nil {
+			return fmt.Errorf("failed to get system status: %w", err)
+		}
+
+		// Print formatted status
+		operator.PrintStatus(status)
+
 		return nil
 	},
 }
@@ -33,22 +54,34 @@ var logsCmd = &cobra.Command{
 		component, _ := cmd.Flags().GetString("component")
 		follow, _ := cmd.Flags().GetBool("follow")
 		lines, _ := cmd.Flags().GetInt("lines")
-		
+
+		// Load configuration
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
+		}
+
+		// Get default environment or use dev
+		env := "dev"
+		envConfig := cfg.GetEnvConfig(env)
+
+		// Initialize operator
+		operator, err := ops.NewOperator()
+		if err != nil {
+			return fmt.Errorf("failed to create operator: %w", err)
+		}
+
 		if component == "all" {
 			fmt.Println("📜 Streaming logs from all components...")
 		} else {
 			fmt.Printf("📜 Streaming logs from component: %s\n", component)
 		}
-		
-		// TODO: Implement log streaming
-		// 1. Connect to Kubernetes API
-		// 2. Stream logs from specified pods
-		// 3. Aggregate and format output
-		// 4. Handle follow mode for real-time streaming
-		
-		_ = follow
-		_ = lines
-		
+
+		// Stream logs
+		if err := operator.StreamLogs(cmd.Context(), envConfig.Namespace, component, follow, int64(lines)); err != nil {
+			return fmt.Errorf("failed to stream logs: %w", err)
+		}
+
 		return nil
 	},
 }
@@ -60,19 +93,59 @@ var metricsCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		service, _ := cmd.Flags().GetString("service")
 		dashboard, _ := cmd.Flags().GetBool("dashboard")
-		
-		if dashboard {
-			fmt.Println("🌐 Opening Grafana dashboard...")
-			// TODO: Open browser to Grafana dashboard
-		} else {
-			fmt.Printf("📈 Metrics for service: %s\n", service)
-			// TODO: Query and display metrics
+
+		// Load configuration
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
 		}
-		
+
+		// Get default environment or use dev
+		env := "dev"
+		envConfig := cfg.GetEnvConfig(env)
+
+		// Initialize operator
+		operator, err := ops.NewOperator()
+		if err != nil {
+			return fmt.Errorf("failed to create operator: %w", err)
+		}
+
+	RunE: func(cmd *cobra.Command, args []string) error {
+		node, _ := cmd.Flags().GetString("node")
+		pod, _ := cmd.Flags().GetString("pod")
+
+		// Load configuration
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
+		}
+
+		// Get default environment or use dev
+		env := "dev"
+		envConfig := cfg.GetEnvConfig(env)
+
+		// Initialize operator
+		operator, err := ops.NewOperator()
+		if err != nil {
+			return fmt.Errorf("failed to create operator: %w", err)
+		}
+
+		if node != "" {
+			fmt.Printf("🖥️  Opening shell to node: %s\n", node)
+			if err := operator.SSHToNode(cmd.Context(), node); err != nil {
+				return fmt.Errorf("failed to SSH to node: %w", err)
+			}
+		} else if pod != "" {
+			fmt.Printf("� Opening shell to pod: %s\n", pod)
+			if err := operator.ExecInPod(cmd.Context(), envConfig.Namespace, pod, ""); err != nil {
+				return fmt.Errorf("failed to exec into pod: %w", err)
+			}
+		} else {
+			return fmt.Errorf("either --node or --pod must be specified")
+		}
+
 		return nil
 	},
-}
-
 var shellCmd = &cobra.Command{
 	Use:   "shell",
 	Short: "Open shell to node or pod",
@@ -80,7 +153,7 @@ var shellCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		node, _ := cmd.Flags().GetString("node")
 		pod, _ := cmd.Flags().GetString("pod")
-		
+
 		if node != "" {
 			fmt.Printf("🖥️  Opening shell to node: %s\n", node)
 			// TODO: SSH to node
@@ -90,7 +163,7 @@ var shellCmd = &cobra.Command{
 		} else {
 			return fmt.Errorf("either --node or --pod must be specified")
 		}
-		
+
 		return nil
 	},
 }
@@ -101,11 +174,28 @@ var dashboardCmd = &cobra.Command{
 	Long:  `Open the OmniTide monitoring dashboard in your browser.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("🌐 Opening OmniTide dashboard...")
-		
-		// TODO: Implement dashboard opening
-		// 1. Port-forward to Grafana service
-		// 2. Open browser to dashboard
-		
+
+		// Load configuration
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
+		}
+
+		// Get default environment or use dev
+		env := "dev"
+		envConfig := cfg.GetEnvConfig(env)
+
+		// Initialize operator
+		operator, err := ops.NewOperator()
+		if err != nil {
+			return fmt.Errorf("failed to create operator: %w", err)
+		}
+
+		// Open dashboard
+		if err := operator.OpenDashboard(cmd.Context(), envConfig.Namespace); err != nil {
+			return fmt.Errorf("failed to open dashboard: %w", err)
+		}
+
 		return nil
 	},
 }
@@ -115,11 +205,11 @@ func init() {
 	logsCmd.Flags().StringP("component", "c", "all", "Component to show logs for")
 	logsCmd.Flags().BoolP("follow", "f", false, "Follow log output")
 	logsCmd.Flags().IntP("lines", "l", 100, "Number of lines to show")
-	
+
 	// Metrics command flags
 	metricsCmd.Flags().StringP("service", "s", "all", "Service to show metrics for")
 	metricsCmd.Flags().BoolP("dashboard", "", false, "Open Grafana dashboard")
-	
+
 	// Shell command flags
 	shellCmd.Flags().StringP("node", "n", "", "Node to connect to")
 	shellCmd.Flags().StringP("pod", "p", "", "Pod to connect to")

@@ -13,4 +13,5 @@ var (
 	MetricsCmd   = metricsCmd
 	ShellCmd     = shellCmd
 	DashboardCmd = dashboardCmd
+	ConfigCmd    = configCmd
 )

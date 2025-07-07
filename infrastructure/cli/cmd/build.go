@@ -1,8 +1,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"time"
 
+	"github.com/Mrpongalfer/omnimesh/infrastructure/cli/pkg/build"
+	"github.com/Mrpongalfer/omnimesh/infrastructure/cli/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -13,23 +17,52 @@ var buildCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		component, _ := cmd.Flags().GetString("component")
 		push, _ := cmd.Flags().GetBool("push")
-		
+
+		// Load configuration
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
+		}
+
+		// Initialize builder
+		workspace := "../../../" // Assuming CLI is in infrastructure/cli
+		registry := cfg.GetEnvConfig("dev").ImageRegistry
+		builder := build.NewBuilder(workspace, registry)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Minute)
+		defer cancel()
+
 		if component != "" {
 			fmt.Printf("🔨 Building component: %s\n", component)
+
+			// Get specific component
+			comp, err := builder.GetComponent(component)
+			if err != nil {
+				return fmt.Errorf("failed to find component %s: %w", component, err)
+			}
+
+			// Build the component
+			tag := "latest" // TODO: Get from git or version flag
+			if err := builder.BuildComponent(ctx, *comp, tag); err != nil {
+				return fmt.Errorf("failed to build component %s: %w", component, err)
+			}
+
+			if push {
+				fmt.Printf("📦 Pushing %s to registry...\n", component)
+				if err := builder.PushComponent(ctx, *comp, tag); err != nil {
+					return fmt.Errorf("failed to push component %s: %w", component, err)
+				}
+			}
 		} else {
-			fmt.Println("🔨 Building all components...")
+			fmt.Println("� Building all components...")
+
+			tag := "latest" // TODO: Get from git or version flag
+			if err := builder.BuildAll(ctx, tag, push); err != nil {
+				return fmt.Errorf("failed to build components: %w", err)
+			}
 		}
-		
-		// TODO: Implement build logic
-		// 1. Detect changes in monorepo
-		// 2. Build only what's changed
-		// 3. Create container images
-		// 4. Push to registry if --push flag is set
-		
-		if push {
-			fmt.Println("📦 Pushing images to registry...")
-		}
-		
+
+		fmt.Println("✅ Build completed successfully")
 		return nil
 	},
 }
@@ -41,16 +74,36 @@ var releaseCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		version, _ := cmd.Flags().GetString("version")
 		env, _ := cmd.Flags().GetString("env")
-		
+
 		fmt.Printf("🚀 Creating release %s for environment: %s\n", version, env)
-		
-		// TODO: Implement release logic
-		// 1. Tag repository
-		// 2. Build all components
-		// 3. Push images with version tags
-		// 4. Update Kubernetes manifests
-		// 5. Deploy via ArgoCD or direct application
-		
+
+		// Load configuration
+		cfg, err := config.LoadConfig()
+		if err != nil {
+			return fmt.Errorf("failed to load config: %w", err)
+		}
+
+		envConfig := cfg.GetEnvConfig(env)
+
+		// Initialize builder
+		workspace := "../../../"
+		builder := build.NewBuilder(workspace, envConfig.ImageRegistry)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 45*time.Minute)
+		defer cancel()
+
+		// Build all components with version tag
+		if err := builder.BuildAll(ctx, version, true); err != nil {
+			return fmt.Errorf("failed to build components: %w", err)
+		}
+
+		// TODO: Additional release steps:
+		// 1. Tag repository with version
+		// 2. Update Kubernetes manifests with new image tags
+		// 3. Commit and push manifest changes
+		// 4. Trigger deployment via ArgoCD or direct application
+
+		fmt.Printf("✅ Release %s created successfully\n", version)
 		return nil
 	},
 }
@@ -59,7 +112,7 @@ func init() {
 	// Add flags
 	buildCmd.Flags().StringP("component", "c", "", "Build specific component (nexus, proxy, frontend)")
 	buildCmd.Flags().BoolP("push", "", false, "Push images to registry after building")
-	
+
 	releaseCmd.Flags().StringP("version", "v", "", "Release version (e.g., v1.2.3)")
 	releaseCmd.Flags().StringP("env", "e", "dev", "Target environment")
 	releaseCmd.MarkFlagRequired("version")
