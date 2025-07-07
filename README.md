@@ -27,28 +27,65 @@
 
 ## 🏛️ Repository Structure
 
-This monorepo contains both the backend and frontend components of the OmniTide Compute Fabric:
+This monorepo contains the complete OmniTide Compute Fabric ecosystem:
 
 ### 🔧 BACKEND
-
 The BACKEND directory contains the core infrastructure components:
-
 - **Nexus Prime Core** - Rust-based orchestration engine
-- **Go Node Proxies** - Go-based edge compute nodes
+- **Go Node Proxies** - Go-based edge compute nodes  
 - **AI Agents** - Specialized AI agent implementations
 - **Data Fabric** - Distributed data processing layer
-- **Kubernetes Manifests** - Deployment configurations
 
 ### 🎨 FRONTEND
-
 The FRONTEND directory contains the UI components:
-
 - **SolidJS UI** - High-performance web interface
 - **Flutter UI** - Cross-platform mobile/desktop interface
 
+### ☁️ INFRASTRUCTURE
+The infrastructure directory contains production deployment tools:
+- **Terraform Configuration** - Complete GCP infrastructure as code
+- **omni-cli** - Unified command-line interface for all operations
+- **Kubernetes Manifests** - GitOps-ready deployment configurations
+- **ArgoCD Setup** - Automated continuous deployment
+
+### 🛠️ omni-cli: One Tool for Everything
+
+The `omni-cli` provides a single interface for the entire OmniTide lifecycle:
+
+```bash
+# Infrastructure management
+omni-cli infra up --env production    # Provision complete GCP infrastructure
+omni-cli infra status                 # Check infrastructure health
+
+# Build and deployment
+omni-cli build --push                 # Build all components and push images
+omni-cli deploy production            # Deploy with zero-downtime
+omni-cli rollback production          # Emergency rollback
+
+# Operations and monitoring  
+omni-cli status                       # Overall system health
+omni-cli logs --component nexus --follow  # Stream live logs
+omni-cli dashboard                    # Open monitoring dashboard
+```
+
 ## 🚀 Quick Start
 
-### Clone the Repository
+### Option 1: Production Deployment (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/Mrpongalfer/omnimesh.git
+cd omnimesh
+
+# Install omni-cli (coming soon)
+curl -sSL https://get.omnitide.dev/cli | sh
+
+# Initialize and deploy to GCP
+omni-cli infra up --env production
+omni-cli deploy production
+```
+
+### Option 2: Development Setup
 
 ```bash
 # Clone the main repository
@@ -74,12 +111,23 @@ npm install
 npm run dev
 ```
 
+### Infrastructure Setup
+
+```bash
+cd infrastructure
+make init
+make plan ENV=dev
+make apply
+```
+
 ## 📚 Documentation
 
 See the README files in each component directory for detailed documentation:
 
 - [Backend Documentation](BACKEND/README.md)
 - [Frontend Documentation](FRONTEND/ui-solidjs/README.md)
+- [Infrastructure Documentation](infrastructure/README.md)
+- [Kubernetes Deployment](kubernetes/README.md)
 
 ## 🤝 Contributing
 
