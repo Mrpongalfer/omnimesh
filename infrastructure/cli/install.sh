@@ -102,8 +102,8 @@ install_binary() {
         
         # Clone repository
         cd "$TMP_DIR"
-        git clone "https://github.com/$GITHUB_REPO.git" 
-        cd omnimesh/infrastructure/cli
+        git clone "https://github.com/$GITHUB_REPO.git" OMNIMESH
+        cd OMNIMESH/infrastructure/cli
         
         # Build binary
         go build -o "$BINARY_NAME" .

@@ -141,6 +141,10 @@ launch_interface() {
         "tui"|"visual")
             python3 "${SCRIPT_DIR}/omni-launcher.py" --interface=textual
             ;;
+        "c2"|"command-center")
+            echo -e "${PURPLE}🎮 Launching Command & Control Center...${NC}"
+            python3 "${SCRIPT_DIR}/omni-c2-center.py"
+            ;;
         "ai"|"ultimate")
             python3 "${SCRIPT_DIR}/omni-launcher.py" --interface=ultimate
             ;;
@@ -525,6 +529,12 @@ main() {
             show_banner
             if check_system; then
                 launch_interface "tui"
+            fi
+            ;;
+        "c2"|"command-center")
+            show_banner
+            if check_system; then
+                launch_interface "c2"
             fi
             ;;
         "web"|"gui"|"ui")

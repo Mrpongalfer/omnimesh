@@ -446,6 +446,13 @@ setup_control_center() {
     chmod +x omni-*.py
     chmod +x quick-start.sh
     
+    # Make C2 Center executable
+    chmod +x omni-c2-center.py
+    
+    # Install additional C2 Center dependencies
+    log_info "Installing C2 Center dependencies..."
+    pip install gitpython pyyaml psutil requests
+    
     # Create desktop shortcuts (Linux/macOS)
     if [[ "$OS_TYPE" != "windows" ]]; then
         create_desktop_shortcuts

@@ -221,8 +221,8 @@ omni-cli status
 ### Building from Source
 
 ```bash
-git clone https://github.com/Mrpongalfer/omnimesh.git
-cd omnimesh/infrastructure/cli
+git clone https://github.com/Mrpongalfer/omnimesh.git OMNIMESH
+cd OMNIMESH/infrastructure/cli
 go mod tidy
 go build -o omni-cli .
 ```
