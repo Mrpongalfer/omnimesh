@@ -1,15 +1,17 @@
 // nexus-prime-core/src/main.rs - The Unyielding Heart of the Nexus Prime
+// Enhanced with Tiger Lily Compliance Framework - Institutional Rigor
 
 use nexus_prime_core::*;
 use nexus_prime_core::fabric_proto::fabric::{
     fabric_service_server::{FabricService, FabricServiceServer},
     *,
 };
+use nexus_prime_core::observability::{initialize_observability, ObservabilityEngine};
 use tokio_stream::wrappers::BroadcastStream;
 use futures::StreamExt;
 use std::sync::Arc;
 use tokio::sync::{broadcast, mpsc};
-use log::{info, warn};
+use tracing::{info, warn, error, debug}; // Use tracing for structured observability
 use uuid::Uuid;
 use tonic::{Request, Response, Status};
 use tonic::transport::Server;
@@ -23,7 +25,8 @@ use axum::{
     Router,
 };
 use std::net::SocketAddr;
-use std::time::Duration;
+use std::time::{Duration, Instant};
+use std::collections::HashMap;
 
 // FabricServiceServerImpl: Implements the gRPC service definition for Nexus Prime
 #[derive(Clone)] // Derive Clone for easy sharing in async contexts
@@ -31,6 +34,8 @@ pub struct FabricServiceServerImpl {
     fabric_manager: FabricManager,
     // For streaming fabric events to the UI/other listeners
     event_stream_tx: broadcast::Sender<FabricEvent>,
+    // Observability engine for institutional rigor
+    observability: Arc<ObservabilityEngine>,
 }
 
 #[tonic::async_trait]
@@ -43,8 +48,21 @@ impl FabricService for FabricServiceServerImpl {
         &self,
         request: Request<AgentRegistrationRequest>,
     ) -> Result<Response<AgentRegistrationResponse>, Status> {
+        let start_time = Instant::now();
         let req = request.into_inner();
-        info!("[gRPC] Received registration request: {:?}", req);
+        
+        // Create operational context
+        let correlation_id = Uuid::new_v4().to_string();
+        let request_id = Uuid::new_v4().to_string();
+        
+        info!(
+            correlation_id = %correlation_id,
+            request_id = %request_id,
+            agent_type = %req.agent_type,
+            ip_address = %req.ip_address,
+            capabilities = %req.capabilities,
+            "🔌 Agent registration request received"
+        );
 
         // Assign a unique Node ID
         let node_id = format!("node-{}", Uuid::new_v4());
@@ -57,10 +75,43 @@ impl FabricService for FabricServiceServerImpl {
             },
             last_seen: chrono::Utc::now(),
             status: "Online".to_string(),
-            capabilities: req.capabilities,
-            ip_address: req.ip_address,
+            capabilities: req.capabilities.clone(),
+            ip_address: req.ip_address.clone(),
         };
+        
+        // Register node with fabric manager
         self.fabric_manager.register_node(node).await;
+        
+        // Record metrics
+        let duration = start_time.elapsed();
+        self.observability.record_request(
+            "grpc",
+            "register_agent",
+            200,
+            duration,
+            None
+        );
+        
+        // Update system health
+        self.observability.update_subsystem_health(
+            "agent_registration",
+            nexus_prime_core::observability::HealthStatus::Healthy,
+            0,
+            0,
+            95.0,
+            vec![
+                ("last_registration".to_string(), chrono::Utc::now().to_rfc3339()),
+                ("node_id".to_string(), node_id.clone()),
+            ].into_iter().collect(),
+        ).await;
+
+        info!(
+            correlation_id = %correlation_id,
+            request_id = %request_id,
+            node_id = %node_id,
+            duration_ms = %duration.as_millis(),
+            "✅ Agent registration completed successfully"
+        );
 
         Ok(Response::new(AgentRegistrationResponse {
             node_id,
@@ -74,10 +125,27 @@ impl FabricService for FabricServiceServerImpl {
         &self,
         request: Request<AgentStatusUpdate>,
     ) -> Result<Response<CommandResponse>, Status> {
+        let start_time = Instant::now();
         let req = request.into_inner();
-        info!("[gRPC] Received status update: {:?}", req);
+        
+        let correlation_id = Uuid::new_v4().to_string();
+        let request_id = Uuid::new_v4().to_string();
+        
+        info!(
+            correlation_id = %correlation_id,
+            request_id = %request_id,
+            node_id = %req.node_id,
+            status_type = %req.status_type,
+            status_value = %req.status_value,
+            "📊 Agent status update received"
+        );
 
         if req.node_id.is_empty() {
+            error!(
+                correlation_id = %correlation_id,
+                request_id = %request_id,
+                "❌ Node ID cannot be empty"
+            );
             return Err(Status::invalid_argument("Node ID cannot be empty."));
         }
 
@@ -217,13 +285,54 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Spawn the periodic pruner
     tokio::spawn(periodic_pruner(fabric_manager.clone()));
 
+    // Initialize observability engine with Tiger Lily compliance
+    let observability = Arc::new(initialize_observability(
+        "nexus-prime-core",
+        "1.0.0",
+        "production",
+        &format!("deployment-{}", Uuid::new_v4()),
+    ));
+
+    // Update gRPC service with observability
+    let grpc_service = FabricServiceServerImpl {
+        fabric_manager: fabric_manager.clone(),
+        event_stream_tx: event_tx.clone(),
+        observability: observability.clone(),
+    };
 
     // Start gRPC server (on 50053) and WebSocket server (on 8081) concurrently
     let grpc_addr = "[::1]:50053".parse()?;
     let ws_addr: SocketAddr = "0.0.0.0:8081".parse()?;
 
+    // Add metrics endpoint
+    let metrics_addr: SocketAddr = "0.0.0.0:8080".parse()?;
+    let metrics_observability = observability.clone();
+    let metrics_server = tokio::spawn(async move {
+        let app = Router::new()
+            .route("/metrics", get(move || async move {
+                match metrics_observability.export_metrics().await {
+                    Ok(metrics) => metrics,
+                    Err(e) => {
+                        error!("Failed to export metrics: {}", e);
+                        "# Error exporting metrics".to_string()
+                    }
+                }
+            }))
+            .route("/health", get(move || async move {
+                let health = metrics_observability.get_health_state().await;
+                format!("{{\"status\": \"{:?}\", \"timestamp\": \"{}\"}}", 
+                    health.overall_status, health.last_health_check.to_rfc3339())
+            }));
+        
+        info!("Starting metrics server on {}", metrics_addr);
+        let listener = tokio::net::TcpListener::bind(metrics_addr).await.unwrap();
+        axum::serve(listener, app)
+            .await
+            .unwrap();
+    });
+
     let grpc = tokio::spawn(async move {
-        info!("Starting gRPC server on {}", grpc_addr);
+        info!("🚀 Starting gRPC server on {} with observability enabled", grpc_addr);
         Server::builder()
             .add_service(FabricServiceServer::new(grpc_service))
             .serve(grpc_addr)
@@ -234,14 +343,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let app = Router::new()
             .route("/ws", get(ws_handler))
             .with_state(app_state);
-        info!("Starting WebSocket server on {}", ws_addr);
+        info!("🌐 Starting WebSocket server on {}", ws_addr);
         let listener = tokio::net::TcpListener::bind(ws_addr).await.unwrap();
         axum::serve(listener, app)
             .await
             .unwrap();
     });
 
-    let (grpc_res, ws_res) = tokio::join!(grpc, ws);
+    info!("🎯 Nexus Prime Core initialized with Tiger Lily compliance");
+    info!("📊 Metrics available at: http://0.0.0.0:8080/metrics");
+    info!("🏥 Health check available at: http://0.0.0.0:8080/health");
+
+    let (grpc_res, ws_res, _metrics_res) = tokio::join!(grpc, ws, metrics_server);
     grpc_res??;
     ws_res;
     Ok(())
@@ -251,9 +364,16 @@ async fn command_processor(
     mut command_rx: mpsc::Receiver<FabricCommand>,
     fabric_manager: FabricManager,
 ) {
-    info!("Command processor started.");
+    info!("⚙️ Command processor started with enhanced observability");
     while let Some(command) = command_rx.recv().await {
-        info!("[CommandProcessor] Received command: {:?}", command);
+        let correlation_id = Uuid::new_v4().to_string();
+        info!(
+            correlation_id = %correlation_id,
+            command_type = %command.command_type,
+            parameters = ?command.parameters,
+            "📝 Command received for processing"
+        );
+        
         match command.command_type.as_str() {
             "DEPLOY_AGENT" => {
                 let agent_name = command

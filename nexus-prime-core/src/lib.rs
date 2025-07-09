@@ -6,11 +6,15 @@ pub mod fabric_proto {
     }
 }
 
+// Import observability framework for Tiger Lily compliance
+pub mod observability;
+
 use crate::fabric_proto::fabric::FabricEvent;
 use crate::fabric_proto::fabric::node_proxy_service_client::NodeProxyServiceClient;
 use crate::fabric_proto::fabric::{DeployAgentRequest, StopAgentRequest};
+use crate::observability::{ObservabilityEngine, initialize_observability};
 use chrono::Utc;
-use log::{error, info, warn};
+use tracing::{info, error, warn, debug}; // Use tracing instead of log for structured observability
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::{broadcast, mpsc, Mutex};
 use tonic::transport::{Server, Channel};

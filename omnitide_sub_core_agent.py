@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import argparse
-import base64
 import datetime
 import json
 import logging
@@ -11,12 +10,10 @@ import subprocess
 import sys
 import time
 import uuid
-import binascii
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from dotenv import load_dotenv
 import requests
-import threading
 
 try:
     from nexus_grpc_client import NexusPrimeClient
