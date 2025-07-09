@@ -16,8 +16,8 @@ The unified command-line interface for the OmniTide Compute Fabric.
 ### From Source
 
 ```bash
-git clone https://github.com/Mrpongalfer/omnimesh.git
-cd omnimesh/infrastructure/cli
+git clone https://github.com/Mrpongalfer/omnimesh.git OMNIMESH
+cd OMNIMESH/infrastructure/cli
 go build -o omni-cli .
 sudo mv omni-cli /usr/local/bin/
 ```

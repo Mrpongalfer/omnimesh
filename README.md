@@ -98,8 +98,8 @@ curl -fsSL https://raw.githubusercontent.com/Mrpongalfer/omnimesh/main/bootstrap
 ### **📥 Manual Installation**
 ```bash
 # Clone the repository
-git clone https://github.com/Mrpongalfer/omnimesh.git
-cd omnimesh
+git clone https://github.com/Mrpongalfer/omnimesh.git OMNIMESH
+cd OMNIMESH
 
 # Run the universal installer
 chmod +x install-omnimesh.sh

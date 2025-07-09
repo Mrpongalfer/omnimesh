@@ -76,8 +76,8 @@ This guide provides comprehensive instructions for deploying OmniMesh to product
 
 ```bash
 # Clone repository
-git clone https://github.com/Mrpongalfer/omnimesh.git
-cd omnimesh
+git clone https://github.com/Mrpongalfer/omnimesh.git OMNIMESH
+cd OMNIMESH
 
 # Set environment variables
 export DEPLOYMENT_ENV=production

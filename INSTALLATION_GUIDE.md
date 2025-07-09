@@ -35,8 +35,8 @@ The OMNIMESH Universal Installer is an intelligent, comprehensive setup script t
 curl -fsSL https://raw.githubusercontent.com/your-repo/omnimesh/main/install-omnimesh.sh | bash
 
 # Or clone and run locally
-git clone https://github.com/your-repo/omnimesh.git
-cd omnimesh
+git clone https://github.com/your-repo/omnimesh.git OMNIMESH
+cd OMNIMESH
 chmod +x install-omnimesh.sh
 ./install-omnimesh.sh
 ```
