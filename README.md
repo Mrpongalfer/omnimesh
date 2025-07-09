@@ -1,7 +1,8 @@
-# 🌊 OmniTide Compute Fabric
+# 🌊 OmniMesh Compute Fabric
 
 [![Rust](https://img.shields.io/badge/Rust-1.75+-CE422B?style=for-the-badge&logo=rust&logoColor=white)](https://rustlang.org/)
 [![Go](https://img.shields.io/badge/Go-1.23+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-25.0+-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com/)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-1.28+-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
@@ -27,7 +28,7 @@
 
 ## 🏛️ Repository Structure
 
-This monorepo contains the complete OmniTide Compute Fabric ecosystem:
+This monorepo contains the complete OmniMesh Compute Fabric ecosystem:
 
 ### 🔧 BACKEND
 The BACKEND directory contains the core infrastructure components:
@@ -44,56 +45,74 @@ The FRONTEND directory contains the UI components:
 ### ☁️ INFRASTRUCTURE
 The infrastructure directory contains production deployment tools:
 - **Terraform Configuration** - Complete GCP infrastructure as code
-- **omni-cli** - Unified command-line interface for all operations
 - **Kubernetes Manifests** - GitOps-ready deployment configurations
 - **ArgoCD Setup** - Automated continuous deployment
 
-### 🛠️ omni-cli: One Tool for Everything
+### 🚀 OmniMesh Control Center (Dual-Mode TUI)
 
-The `omni-cli` provides a single interface for the entire OmniTide lifecycle:
+The OmniMesh Control Center provides two powerful interfaces for managing the entire OmniMesh lifecycle:
+
+1. **CLI Mode**: Rich terminal interface with menu-driven navigation
+2. **TUI Mode**: Full-screen Textual interface with mouse support and advanced widgets
 
 ```bash
-# Infrastructure management
-omni-cli infra up --env production    # Provision complete GCP infrastructure
-omni-cli infra status                 # Check infrastructure health
+# Launch the unified launcher (defaults to CLI mode)
+python omni_launcher.py
 
-# Build and deployment
-omni-cli build --push                 # Build all components and push images
-omni-cli deploy production            # Deploy with zero-downtime
-omni-cli rollback production          # Emergency rollback
+# Launch full TUI mode with mouse support
+python omni_launcher.py --tui
 
-# Operations and monitoring  
-omni-cli status                       # Overall system health
-omni-cli logs --component nexus --follow  # Stream live logs
-omni-cli dashboard                    # Open monitoring dashboard
+# Run setup wizard
+python omni_launcher.py --setup
+
+# Show system status
+python omni_launcher.py --status
+
+# Direct CLI access (advanced users)
+python omni-interactive-tui.py
+
+# Direct TUI access (advanced users)
+python omni_textual_tui.py
 ```
+
+#### Key Features:
+- **Dual Architecture**: Choose between CLI menus or full TUI experience
+- **AI Integration**: Natural language commands and predictive automation
+- **Real-time Monitoring**: Live system metrics and service health
+- **Configuration Management**: Visual editors with validation
+- **Container Orchestration**: Docker and Kubernetes management
+- **Security Management**: Certificate and secret management
+- **Self-healing Diagnostics**: Automated issue detection and resolution
 
 ## 🚀 Quick Start
 
-### Option 1: Production Deployment (Recommended)
+### **🎯 One-Command Installation (Recommended)**
+```bash
+# Universal installer - automatically sets up everything
+curl -fsSL https://raw.githubusercontent.com/Mrpongalfer/omnimesh/main/bootstrap.sh | bash
 
+# Or with options
+curl -fsSL https://raw.githubusercontent.com/Mrpongalfer/omnimesh/main/bootstrap.sh | bash -s -- --dev --ai
+```
+
+### **📥 Manual Installation**
 ```bash
 # Clone the repository
 git clone https://github.com/Mrpongalfer/omnimesh.git
 cd omnimesh
 
-# Install omni-cli (coming soon)
-curl -sSL https://get.omnitide.dev/cli | sh
+# Run the universal installer
+chmod +x install-omnimesh.sh
+./install-omnimesh.sh
 
-# Initialize and deploy to GCP
-omni-cli infra up --env production
-omni-cli deploy production
-```
+# Or install manually
+pip install -r requirements.txt
 
-### Option 2: Development Setup
+# Launch the Control Center (CLI mode)
+python omni_launcher.py
 
-```bash
-# Clone the main repository
-git clone https://github.com/Mrpongalfer/omnimesh.git
-cd omnimesh
-
-# Initialize and update the BACKEND submodule (backend-main branch)
-git submodule update --init --recursive
+# Or launch the full TUI interface
+python omni_launcher.py --tui
 ```
 
 ### Backend Setup
@@ -140,5 +159,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <div align="center">
-  <strong>Built with ❤️ by the OmniTide Team</strong>
+  <strong>Built with ❤️ by the OmniMesh Team</strong>
 </div>

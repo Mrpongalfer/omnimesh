@@ -1,0 +1,39 @@
+# OmniMesh TUI Configuration
+environment:
+  current: "development"
+  available: ["development", "staging", "production"]
+
+services:
+  nexus_core:
+    image: "nexus-prime-core:latest"
+    ports: [8080, 8443]
+    health_check: "/health"
+  
+  go_proxies:
+    image: "go-node-proxies:latest"
+    ports: [9090, 9443]
+    replicas: 3
+
+ai:
+  provider: "openai"
+  model: "gpt-4"
+  features:
+    - "natural_language_commands"
+    - "predictive_scaling"
+    - "anomaly_detection"
+
+monitoring:
+  prometheus:
+    enabled: true
+    port: 9090
+  grafana:
+    enabled: true
+    port: 3000
+  jaeger:
+    enabled: true
+    port: 16686
+
+security:
+  tls_enabled: true
+  certificate_path: "/etc/ssl/certs/omnimesh"
+  secret_encryption: "aes-256-gcm"

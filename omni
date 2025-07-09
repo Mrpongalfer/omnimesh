@@ -1,0 +1,291 @@
+#!/usr/bin/env python3
+"""
+🌊 OmniMesh - Modern Package Manager Style CLI
+Entry point for the complete OmniMesh ecosystem
+"""
+
+import sys
+import os
+import subprocess
+import argparse
+from pathlib import Path
+from rich.console import Console
+from rich.panel import Panel
+from rich.columns import Columns
+from rich.text import Text
+from rich.table import Table
+from rich.prompt import Prompt, Confirm
+from rich import print as rprint
+
+console = Console()
+
+def show_banner():
+    """Show the OmniMesh banner"""
+    banner_text = Text.assemble(
+        ("🌊 ", "cyan bold"),
+        ("OmniMesh", "white bold"),
+        (" Control Center", "blue"),
+        (" • ", "dim"),
+        ("Tiger Lily Ω^9", "red bold"),
+        (" Enhanced", "dim")
+    )
+    
+    panel = Panel(
+        banner_text,
+        title="[cyan]Modern Interactive CLI[/]",
+        subtitle="[dim]The clicky, keyboard-navigable future[/]",
+        border_style="cyan",
+        padding=(1, 2)
+    )
+    console.print(panel)
+
+def show_interfaces():
+    """Show available interfaces in a modern layout"""
+    interfaces = [
+        {
+            "name": "Interactive CLI",
+            "icon": "📝",
+            "description": "BubbleTea-style keyboard navigation",
+            "command": "python3 omni-interactive-cli.py",
+            "hotkey": "Ctrl+1"
+        },
+        {
+            "name": "Web Interface",
+            "icon": "🌐", 
+            "description": "Modern clickable browser control",
+            "command": "./quick-start.sh web",
+            "hotkey": "Ctrl+3"
+        },
+        {
+            "name": "Textual TUI",
+            "icon": "🎨",
+            "description": "Full-screen terminal interface",
+            "command": "python3 omni_textual_tui.py",
+            "hotkey": "Ctrl+2"
+        },
+        {
+            "name": "AI Ultimate",
+            "icon": "🤖",
+            "description": "AI-powered automation system",
+            "command": "python3 omni_ultimate_system.py",
+            "hotkey": "Ctrl+4"
+        }
+    ]
+    
+    # Create interface cards
+    cards = []
+    for i, interface in enumerate(interfaces, 1):
+        card_content = f"""[bold cyan]{interface['icon']} {interface['name']}[/]
+
+[dim]{interface['description']}[/]
+
+[green]● Ready[/] [dim]| {interface['hotkey']}[/]
+[blue]Launch with: [/][yellow]{i}[/]"""
+        
+        card = Panel(
+            card_content,
+            title=f"[cyan]Interface {i}[/]",
+            border_style="blue",
+            padding=(1, 1),
+            width=25
+        )
+        cards.append(card)
+    
+    console.print(Columns(cards, equal=True, expand=True))
+    return interfaces
+
+def show_quick_actions():
+    """Show quick action options"""
+    actions = Table(title="⚡ Quick Actions", border_style="yellow")
+    actions.add_column("Key", style="yellow bold", width=8)
+    actions.add_column("Action", style="white")
+    actions.add_column("Description", style="dim")
+    
+    actions.add_row("s", "Status", "Quick system health check")
+    actions.add_row("t", "Test", "Run comprehensive tests")
+    actions.add_row("d", "Deploy", "Professional deployment")
+    actions.add_row("f", "Features", "Discover all capabilities")
+    actions.add_row("h", "Help", "Show detailed help")
+    actions.add_row("q", "Quit", "Exit the application")
+    
+    console.print(actions)
+
+def show_tiger_lily_status():
+    """Show Tiger Lily enforcement status"""
+    status_panel = Panel(
+        """[red bold]🔥 Tiger Lily Enforcement Ω^9[/]
+
+[red]● ACTIVE[/] [dim]Absolute Dominion Mode[/]
+[yellow]CPU Threshold: < 50%[/]
+[yellow]Memory Threshold: < 70%[/]
+[green]Compliance: ✅ Verified[/]
+
+[dim]Factor: 729 | Level: Ω^9 | Mode: Zero-Tolerance[/]""",
+        title="[red]Enforcement Status[/]",
+        border_style="red",
+        padding=(1, 2)
+    )
+    console.print(status_panel)
+
+def launch_interface(interface_command: str):
+    """Launch an interface"""
+    console.print(f"\n[cyan]🚀 Launching interface...[/]")
+    try:
+        subprocess.run(interface_command.split(), cwd=Path(__file__).parent)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Interface closed by user[/]")
+    except Exception as e:
+        console.print(f"\n[red]❌ Error launching interface: {e}[/]")
+
+def run_quick_action(action: str):
+    """Run a quick action"""
+    commands = {
+        's': './quick-start.sh status',
+        't': './quick-start.sh test', 
+        'd': './quick-start.sh deploy',
+        'f': './quick-start.sh features',
+        'h': './quick-start.sh help'
+    }
+    
+    if action in commands:
+        console.print(f"\n[cyan]⚡ Running: {commands[action]}[/]")
+        try:
+            subprocess.run(commands[action].split(), cwd=Path(__file__).parent)
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Command interrupted by user[/]")
+        except Exception as e:
+            console.print(f"\n[red]❌ Error running command: {e}[/]")
+
+def interactive_mode():
+    """Run in interactive mode"""
+    while True:
+        console.clear()
+        show_banner()
+        console.print()
+        
+        # Show main sections
+        interfaces = show_interfaces()
+        console.print()
+        show_quick_actions()
+        console.print()
+        show_tiger_lily_status()
+        
+        # Get user input
+        console.print(f"\n[bold]Choose an option:[/]")
+        choice = Prompt.ask(
+            "[cyan]Enter number (1-4) for interface, letter for action, or 'q' to quit[/]",
+            default="1"
+        ).lower().strip()
+        
+        # Handle input
+        if choice == 'q':
+            console.print("\n[green]🌊 Thank you for using OmniMesh![/]")
+            break
+        elif choice in ['1', '2', '3', '4']:
+            try:
+                interface_idx = int(choice) - 1
+                if 0 <= interface_idx < len(interfaces):
+                    launch_interface(interfaces[interface_idx]['command'])
+                else:
+                    console.print("\n[red]❌ Invalid interface number[/]")
+            except ValueError:
+                console.print("\n[red]❌ Invalid input[/]")
+        elif choice in ['s', 't', 'd', 'f', 'h']:
+            run_quick_action(choice)
+        else:
+            console.print(f"\n[red]❌ Unknown option: {choice}[/]")
+        
+        if choice != 'q':
+            console.print("\n[dim]Press Enter to continue...[/]")
+            input()
+
+def show_help():
+    """Show comprehensive help"""
+    help_table = Table(title="🌊 OmniMesh Help Guide", border_style="cyan")
+    help_table.add_column("Category", style="cyan bold")
+    help_table.add_column("Description", style="white")
+    help_table.add_column("Usage", style="yellow")
+    
+    help_table.add_row(
+        "Interactive CLI",
+        "Modern BubbleTea-style interface",
+        "omni interactive\nomni cli"
+    )
+    help_table.add_row(
+        "Web Interface", 
+        "Browser-based control panel",
+        "omni web\nomni gui"
+    )
+    help_table.add_row(
+        "Quick Actions",
+        "Common system operations",
+        "omni status\nomni test\nomni deploy"
+    )
+    help_table.add_row(
+        "Tiger Lily",
+        "Enforcement and compliance",
+        "omni tiger-lily\nomni compliance"
+    )
+    
+    console.print(help_table)
+
+def main():
+    """Main entry point"""
+    parser = argparse.ArgumentParser(
+        description="🌊 OmniMesh - Modern Package Manager Style CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  omni                    # Interactive mode (recommended)
+  omni interactive        # Launch interactive CLI
+  omni web               # Launch web interface
+  omni status            # Quick system status
+  omni help              # Show this help
+        """
+    )
+    
+    parser.add_argument(
+        'command',
+        nargs='?',
+        default='interactive',
+        help='Command to run (interactive, web, cli, tui, ai, status, test, deploy, help)'
+    )
+    
+    parser.add_argument(
+        '--version',
+        action='version',
+        version='🌊 OmniMesh v2.0.0 - Tiger Lily Ω^9 Enhanced'
+    )
+    
+    args = parser.parse_args()
+    
+    # Handle commands
+    if args.command in ['interactive', 'i']:
+        interactive_mode()
+    elif args.command in ['cli', 'interactive-cli']:
+        launch_interface("python3 omni-interactive-cli.py")
+    elif args.command in ['web', 'gui', 'browser']:
+        launch_interface("./quick-start.sh web")
+    elif args.command in ['tui', 'textual']:
+        launch_interface("python3 omni_textual_tui.py")
+    elif args.command in ['ai', 'ultimate']:
+        launch_interface("python3 omni_ultimate_system.py")
+    elif args.command in ['orchestrator', 'orch']:
+        launch_interface("python3 omni_system_orchestrator.py")
+    elif args.command == 'status':
+        run_quick_action('s')
+    elif args.command == 'test':
+        run_quick_action('t')
+    elif args.command == 'deploy':
+        run_quick_action('d')
+    elif args.command == 'features':
+        run_quick_action('f')
+    elif args.command == 'help':
+        show_help()
+    else:
+        console.print(f"[red]❌ Unknown command: {args.command}[/]")
+        console.print("[cyan]Run 'omni help' for available commands[/]")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

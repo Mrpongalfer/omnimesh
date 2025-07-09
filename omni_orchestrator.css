@@ -1,0 +1,258 @@
+/* OmniMesh System Orchestrator CSS */
+/* Advanced styling for the recursive improvement engine */
+
+/* Main layout panels */
+.left-panel {
+    width: 25%;
+    padding: 1;
+    border: solid $primary;
+    background: $surface;
+}
+
+.main-panel {
+    width: 50%;
+    padding: 1;
+    border: solid $secondary;
+    background: $surface;
+}
+
+.right-panel {
+    width: 25%;
+    padding: 1;
+    border: solid $accent;
+    background: $surface;
+}
+
+/* Panel titles */
+.panel-title {
+    color: $primary;
+    text-style: bold;
+    background: $surface;
+    padding: 1;
+    margin: 0 0 1 0;
+    border-bottom: solid $primary;
+}
+
+/* Status displays */
+.status-display {
+    padding: 1;
+    background: $surface;
+    border: solid $success;
+    color: $text;
+    height: 6;
+    overflow-y: auto;
+}
+
+.monitoring-display {
+    padding: 1;
+    background: $surface;
+    border: solid $warning;
+    color: $text;
+    height: 12;
+    overflow-y: auto;
+}
+
+.metrics-display {
+    padding: 1;
+    background: $surface;
+    border: solid $info;
+    color: $text;
+    height: 8;
+    overflow-y: auto;
+}
+
+.security-display {
+    padding: 1;
+    background: $surface;
+    border: solid $error;
+    color: $text;
+    height: 6;
+    overflow-y: auto;
+}
+
+.log-display {
+    padding: 1;
+    background: $background;
+    border: solid $secondary;
+    color: $text;
+    height: 12;
+    overflow-y: auto;
+}
+
+/* Control panel */
+.control-panel {
+    padding: 1;
+    background: $surface;
+    layout: grid;
+    grid-size: 2;
+    grid-gutter: 1;
+}
+
+.control-btn {
+    width: 100%;
+    background: $primary;
+    color: $text;
+    border: solid $primary;
+    padding: 1;
+    margin: 0 0 1 0;
+}
+
+.control-btn:hover {
+    background: $primary-darken-1;
+    border: solid $primary-darken-1;
+}
+
+.control-btn:focus {
+    background: $primary-lighten-1;
+    border: solid $primary-lighten-1;
+}
+
+/* System status indicators */
+.status-good {
+    color: $success;
+    text-style: bold;
+}
+
+.status-warning {
+    color: $warning;
+    text-style: bold;
+}
+
+.status-error {
+    color: $error;
+    text-style: bold;
+}
+
+.status-info {
+    color: $info;
+    text-style: bold;
+}
+
+/* Performance metrics */
+.metric-high {
+    color: $success;
+    text-style: bold;
+}
+
+.metric-medium {
+    color: $warning;
+    text-style: bold;
+}
+
+.metric-low {
+    color: $error;
+    text-style: bold;
+}
+
+/* AI analysis styling */
+.ai-enabled {
+    color: $primary;
+    text-style: bold;
+}
+
+.ai-disabled {
+    color: $secondary;
+    text-style: dim;
+}
+
+/* Improvement cycle styling */
+.cycle-active {
+    color: $success;
+    text-style: bold;
+}
+
+.cycle-completed {
+    color: $info;
+    text-style: dim;
+}
+
+.cycle-failed {
+    color: $error;
+    text-style: bold;
+}
+
+/* Loading indicators */
+.loading {
+    color: $primary;
+    text-style: bold;
+}
+
+/* Progress indicators */
+.progress-high {
+    color: $success;
+    background: $success-darken-3;
+}
+
+.progress-medium {
+    color: $warning;
+    background: $warning-darken-3;
+}
+
+.progress-low {
+    color: $error;
+    background: $error-darken-3;
+}
+
+/* Network status */
+.network-active {
+    color: $success;
+    text-style: bold;
+}
+
+.network-idle {
+    color: $secondary;
+    text-style: dim;
+}
+
+/* Docker container status */
+.container-running {
+    color: $success;
+    text-style: bold;
+}
+
+.container-stopped {
+    color: $error;
+    text-style: bold;
+}
+
+.container-paused {
+    color: $warning;
+    text-style: bold;
+}
+
+/* Security alert levels */
+.alert-critical {
+    color: $error;
+    text-style: bold;
+    background: $error-darken-3;
+}
+
+.alert-high {
+    color: $warning;
+    text-style: bold;
+    background: $warning-darken-3;
+}
+
+.alert-medium {
+    color: $info;
+    text-style: bold;
+    background: $info-darken-3;
+}
+
+.alert-low {
+    color: $success;
+    text-style: bold;
+    background: $success-darken-3;
+}
+
+/* Header and footer styling */
+Header {
+    background: $primary;
+    color: $text;
+    text-style: bold;
+}
+
+Footer {
+    background: $secondary;
+    color: $text;
+}

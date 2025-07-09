@@ -1,0 +1,145 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: omnimesh-core
+  namespace: omnimesh
+  annotations:
+    security.omnimesh.io/purpose: "Core service account"
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: omnimesh-ui
+  namespace: omnimesh
+  annotations:
+    security.omnimesh.io/purpose: "UI service account"
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: omnimesh-gateway
+  namespace: omnimesh
+  annotations:
+    security.omnimesh.io/purpose: "Gateway service account"
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: omnimesh-operator
+  namespace: omnimesh-system
+  annotations:
+    security.omnimesh.io/purpose: "Operator service account"
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: omnimesh
+  name: omnimesh-core-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: omnimesh
+  name: omnimesh-ui-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: omnimesh
+  name: omnimesh-gateway-role
+rules:
+- apiGroups: [""]
+  resources: ["services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: omnimesh-operator-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "pods", "services", "endpoints", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch", "create", "update", "patch"]
+- apiGroups: ["policy"]
+  resources: ["podsecuritypolicies"]
+  verbs: ["use"]
+  resourceNames: ["omnimesh-psp"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnimesh-core-binding
+  namespace: omnimesh
+subjects:
+- kind: ServiceAccount
+  name: omnimesh-core
+  namespace: omnimesh
+roleRef:
+  kind: Role
+  name: omnimesh-core-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnimesh-ui-binding
+  namespace: omnimesh
+subjects:
+- kind: ServiceAccount
+  name: omnimesh-ui
+  namespace: omnimesh
+roleRef:
+  kind: Role
+  name: omnimesh-ui-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnimesh-gateway-binding
+  namespace: omnimesh
+subjects:
+- kind: ServiceAccount
+  name: omnimesh-gateway
+  namespace: omnimesh
+roleRef:
+  kind: Role
+  name: omnimesh-gateway-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: omnimesh-operator-binding
+subjects:
+- kind: ServiceAccount
+  name: omnimesh-operator
+  namespace: omnimesh-system
+roleRef:
+  kind: ClusterRole
+  name: omnimesh-operator-role
+  apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,21 @@
+{
+  "moderate": false,
+  "high": false,
+  "critical": false,
+  "allowlist": [],
+  "report-type": "full",
+  "output-file": "reports/audit-ci-report.json",
+  "skip-dev": false,
+  "advisories": [],
+  "whitelist": [],
+  "registry": "https://registry.npmjs.org/",
+  "summary": true,
+  "threshold": {
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0
+  },
+  "ignore": [],
+  "exclude": []
+}

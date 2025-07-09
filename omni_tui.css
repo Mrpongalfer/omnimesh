@@ -1,0 +1,160 @@
+/* Main App Styling */
+Screen {
+    background: #0a0a0a;
+    color: #e0e0e0;
+}
+
+/* Main Menu Styling */
+.main-container {
+    align: center middle;
+    padding: 2 4;
+    width: 100%;
+    height: 100%;
+}
+
+.main-title {
+    text-align: center;
+    padding-bottom: 1;
+    color: #00aaff;
+    text-style: bold;
+}
+
+.subtitle {
+    text-align: center;
+    padding-bottom: 2;
+    color: #888888;
+    text-style: italic;
+}
+
+.menu-grid {
+    width: 80%;
+    height: auto;
+    align: center middle;
+}
+
+Button {
+    width: 100%;
+    height: 3;
+    margin: 0 1;
+    background: #1e1e1e;
+    border: tall #3e3e3e;
+}
+
+Button:hover {
+    background: #2e2e2e;
+    border: tall #5e5e5e;
+}
+
+Button:focus {
+    border: tall #00aaff;
+}
+
+Button.-primary {
+    background: #0066cc;
+    border: tall #0088ff;
+}
+
+Button.-primary:hover {
+    background: #0088ff;
+    border: tall #00aaff;
+}
+
+Button.-warning {
+    background: #cc6600;
+    border: tall #ff8800;
+}
+
+Button.-warning:hover {
+    background: #ff8800;
+    border: tall #ffaa00;
+}
+
+/* Screen Layout */
+.screen-container {
+    height: 100%;
+    padding: 1;
+}
+
+.screen-title {
+    text-align: center;
+    padding: 1;
+    color: #00aaff;
+    text-style: bold;
+}
+
+.button-grid {
+    width: 100%;
+    align: center top;
+}
+
+.output-log {
+    height: 50%;
+    margin-top: 1;
+    border: tall #3e3e3e;
+}
+
+/* Configuration Screen */
+.config-layout {
+    height: 90%;
+}
+
+.config-editor {
+    width: 70%;
+    height: 100%;
+    border: tall #3e3e3e;
+    background: #1a1a1a;
+}
+
+/* Deployment Screen */
+.tab-content {
+    height: 80%;
+    padding: 1;
+}
+
+.deploy-controls {
+    align: center top;
+    height: 100%;
+}
+
+.progress-bar {
+    width: 80%;
+    margin: 1;
+}
+
+.service-logs {
+    height: 100%;
+    border: tall #3e3e3e;
+}
+
+/* Monitoring Screen */
+.monitoring-layout {
+    height: 60%;
+}
+
+.metrics-panel, .status-panel {
+    width: 50%;
+    height: 100%;
+    border: tall #3e3e3e;
+    padding: 1;
+}
+
+.section-title {
+    text-style: bold;
+    color: #00aaff;
+    margin-bottom: 1;
+}
+
+.metric {
+    color: #00ff00;
+    margin-bottom: 1;
+}
+
+.service-status {
+    margin-bottom: 1;
+}
+
+.alerts-log {
+    height: 30%;
+    border: tall #3e3e3e;
+    margin-top: 1;
+}

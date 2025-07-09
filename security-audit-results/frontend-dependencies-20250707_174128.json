@@ -1,0 +1,238 @@
+{
+  "version": "1.0.0",
+  "name": "@omnitide/control-panel",
+  "problems": [
+    "missing: @commitlint/cli@^19.5.0, required by @omnitide/control-panel@1.0.0",
+    "missing: @commitlint/config-conventional@^19.5.0, required by @omnitide/control-panel@1.0.0",
+    "missing: @playwright/test@^1.49.0, required by @omnitide/control-panel@1.0.0",
+    "missing: @testing-library/jest-dom@^6.6.3, required by @omnitide/control-panel@1.0.0",
+    "missing: @testing-library/solid@^1.8.3, required by @omnitide/control-panel@1.0.0",
+    "invalid: @types/node@24.0.10 /home/pong/Documents/OMNIMESH/FRONTEND/ui-solidjs/node_modules/@types/node",
+    "missing: @vitest/coverage-v8@^2.1.8, required by @omnitide/control-panel@1.0.0",
+    "missing: @vitest/ui@^2.1.8, required by @omnitide/control-panel@1.0.0",
+    "missing: eslint-plugin-a11y@^1.0.1, required by @omnitide/control-panel@1.0.0",
+    "missing: eslint-plugin-import@^2.31.0, required by @omnitide/control-panel@1.0.0",
+    "missing: happy-dom@^15.11.7, required by @omnitide/control-panel@1.0.0",
+    "missing: husky@^9.1.7, required by @omnitide/control-panel@1.0.0",
+    "missing: lint-staged@^15.2.10, required by @omnitide/control-panel@1.0.0",
+    "missing: prettier-plugin-tailwindcss@^0.6.8, required by @omnitide/control-panel@1.0.0",
+    "missing: vite-bundle-analyzer@^0.12.1, required by @omnitide/control-panel@1.0.0",
+    "missing: vite-plugin-pwa@^0.25.1, required by @omnitide/control-panel@1.0.0",
+    "missing: vitest@^2.1.8, required by @omnitide/control-panel@1.0.0",
+    "missing: workbox-window@^7.4.0, required by @omnitide/control-panel@1.0.0"
+  ],
+  "dependencies": {
+    "@commitlint/cli": {
+      "required": "^19.5.0",
+      "missing": true,
+      "problems": [
+        "missing: @commitlint/cli@^19.5.0, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "@commitlint/config-conventional": {
+      "missing": true,
+      "problems": [
+        "missing: @commitlint/config-conventional@^19.5.0, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "@playwright/test": {
+      "missing": true,
+      "problems": [
+        "missing: @playwright/test@^1.49.0, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "@tailwindcss/postcss": {
+      "version": "4.1.11",
+      "resolved": "https://registry.npmjs.org/@tailwindcss/postcss/-/postcss-4.1.11.tgz",
+      "overridden": false
+    },
+    "@testing-library/jest-dom": {
+      "missing": true,
+      "problems": [
+        "missing: @testing-library/jest-dom@^6.6.3, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "@testing-library/solid": {
+      "missing": true,
+      "problems": [
+        "missing: @testing-library/solid@^1.8.3, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "@types/d3": {
+      "version": "7.4.3",
+      "resolved": "https://registry.npmjs.org/@types/d3/-/d3-7.4.3.tgz",
+      "overridden": false
+    },
+    "@types/node": {
+      "version": "24.0.10",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-24.0.10.tgz",
+      "overridden": false,
+      "invalid": "\"^22.10.2\" from the root project",
+      "problems": [
+        "invalid: @types/node@24.0.10 /home/pong/Documents/OMNIMESH/FRONTEND/ui-solidjs/node_modules/@types/node"
+      ]
+    },
+    "@typescript-eslint/eslint-plugin": {
+      "version": "8.35.1",
+      "resolved": "https://registry.npmjs.org/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.35.1.tgz",
+      "overridden": false
+    },
+    "@typescript-eslint/parser": {
+      "version": "8.35.1",
+      "resolved": "https://registry.npmjs.org/@typescript-eslint/parser/-/parser-8.35.1.tgz",
+      "overridden": false
+    },
+    "@vitest/coverage-v8": {
+      "missing": true,
+      "problems": [
+        "missing: @vitest/coverage-v8@^2.1.8, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "@vitest/ui": {
+      "missing": true,
+      "problems": [
+        "missing: @vitest/ui@^2.1.8, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "autoprefixer": {
+      "version": "10.4.21",
+      "resolved": "https://registry.npmjs.org/autoprefixer/-/autoprefixer-10.4.21.tgz",
+      "overridden": false
+    },
+    "d3": {
+      "version": "7.9.0",
+      "resolved": "https://registry.npmjs.org/d3/-/d3-7.9.0.tgz",
+      "overridden": false
+    },
+    "eslint-config-prettier": {
+      "version": "10.1.5",
+      "resolved": "https://registry.npmjs.org/eslint-config-prettier/-/eslint-config-prettier-10.1.5.tgz",
+      "overridden": false
+    },
+    "eslint-plugin-a11y": {
+      "missing": true,
+      "problems": [
+        "missing: eslint-plugin-a11y@^1.0.1, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "eslint-plugin-import": {
+      "missing": true,
+      "problems": [
+        "missing: eslint-plugin-import@^2.31.0, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "eslint-plugin-prettier": {
+      "version": "5.5.1",
+      "resolved": "https://registry.npmjs.org/eslint-plugin-prettier/-/eslint-plugin-prettier-5.5.1.tgz",
+      "overridden": false
+    },
+    "eslint-plugin-solid": {
+      "version": "0.14.5",
+      "resolved": "https://registry.npmjs.org/eslint-plugin-solid/-/eslint-plugin-solid-0.14.5.tgz",
+      "overridden": false
+    },
+    "eslint": {
+      "version": "9.30.1",
+      "resolved": "https://registry.npmjs.org/eslint/-/eslint-9.30.1.tgz",
+      "overridden": false
+    },
+    "happy-dom": {
+      "missing": true,
+      "problems": [
+        "missing: happy-dom@^15.11.7, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "husky": {
+      "missing": true,
+      "problems": [
+        "missing: husky@^9.1.7, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "lint-staged": {
+      "missing": true,
+      "problems": [
+        "missing: lint-staged@^15.2.10, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "pixi.js": {
+      "version": "8.11.0",
+      "resolved": "https://registry.npmjs.org/pixi.js/-/pixi.js-8.11.0.tgz",
+      "overridden": false
+    },
+    "postcss": {
+      "version": "8.5.6",
+      "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.6.tgz",
+      "overridden": false
+    },
+    "prettier-plugin-tailwindcss": {
+      "missing": true,
+      "problems": [
+        "missing: prettier-plugin-tailwindcss@^0.6.8, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "prettier": {
+      "version": "3.6.2",
+      "resolved": "https://registry.npmjs.org/prettier/-/prettier-3.6.2.tgz",
+      "overridden": false
+    },
+    "protobufjs": {
+      "version": "7.5.3",
+      "resolved": "https://registry.npmjs.org/protobufjs/-/protobufjs-7.5.3.tgz",
+      "overridden": false
+    },
+    "solid-js": {
+      "version": "1.9.7",
+      "resolved": "https://registry.npmjs.org/solid-js/-/solid-js-1.9.7.tgz",
+      "overridden": false
+    },
+    "tailwindcss": {
+      "version": "4.1.11",
+      "resolved": "https://registry.npmjs.org/tailwindcss/-/tailwindcss-4.1.11.tgz",
+      "overridden": false
+    },
+    "typescript": {
+      "version": "5.8.3",
+      "resolved": "https://registry.npmjs.org/typescript/-/typescript-5.8.3.tgz",
+      "overridden": false
+    },
+    "vite-bundle-analyzer": {
+      "missing": true,
+      "problems": [
+        "missing: vite-bundle-analyzer@^0.12.1, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "vite-plugin-pwa": {
+      "missing": true,
+      "problems": [
+        "missing: vite-plugin-pwa@^0.25.1, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "vite-plugin-solid": {
+      "version": "2.11.7",
+      "resolved": "https://registry.npmjs.org/vite-plugin-solid/-/vite-plugin-solid-2.11.7.tgz",
+      "overridden": false
+    },
+    "vite": {
+      "version": "6.3.5",
+      "resolved": "https://registry.npmjs.org/vite/-/vite-6.3.5.tgz",
+      "overridden": false
+    },
+    "vitest": {
+      "missing": true,
+      "problems": [
+        "missing: vitest@^2.1.8, required by @omnitide/control-panel@1.0.0"
+      ]
+    },
+    "workbox-window": {
+      "missing": true,
+      "problems": [
+        "missing: workbox-window@^7.4.0, required by @omnitide/control-panel@1.0.0"
+      ]
+    }
+  },
+  "error": {
+    "code": "ELSPROBLEMS",
+    "summary": "missing: @commitlint/cli@^19.5.0, required by @omnitide/control-panel@1.0.0\nmissing: @commitlint/config-conventional@^19.5.0, required by @omnitide/control-panel@1.0.0\nmissing: @playwright/test@^1.49.0, required by @omnitide/control-panel@1.0.0\nmissing: @testing-library/jest-dom@^6.6.3, required by @omnitide/control-panel@1.0.0\nmissing: @testing-library/solid@^1.8.3, required by @omnitide/control-panel@1.0.0\ninvalid: @types/node@24.0.10 /home/pong/Documents/OMNIMESH/FRONTEND/ui-solidjs/node_modules/@types/node\nmissing: @vitest/coverage-v8@^2.1.8, required by @omnitide/control-panel@1.0.0\nmissing: @vitest/ui@^2.1.8, required by @omnitide/control-panel@1.0.0\nmissing: eslint-plugin-a11y@^1.0.1, required by @omnitide/control-panel@1.0.0\nmissing: eslint-plugin-import@^2.31.0, required by @omnitide/control-panel@1.0.0\nmissing: happy-dom@^15.11.7, required by @omnitide/control-panel@1.0.0\nmissing: husky@^9.1.7, required by @omnitide/control-panel@1.0.0\nmissing: lint-staged@^15.2.10, required by @omnitide/control-panel@1.0.0\nmissing: prettier-plugin-tailwindcss@^0.6.8, required by @omnitide/control-panel@1.0.0\nmissing: vite-bundle-analyzer@^0.12.1, required by @omnitide/control-panel@1.0.0\nmissing: vite-plugin-pwa@^0.25.1, required by @omnitide/control-panel@1.0.0\nmissing: vitest@^2.1.8, required by @omnitide/control-panel@1.0.0\nmissing: workbox-window@^7.4.0, required by @omnitide/control-panel@1.0.0",
+    "detail": ""
+  }
+}

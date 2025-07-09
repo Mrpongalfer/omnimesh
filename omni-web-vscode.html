@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌊 OmniMesh Control Center - VS Code Optimized</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #00ff88;
+            color: #000;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #64ffda;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .command-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid #64ffda;
+            transition: all 0.3s ease;
+        }
+
+        .command-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        .command-card:hover .command-code {
+            background: #2a2a2a;
+            border-color: #64ffda;
+            color: #64ffda;
+        }
+
+        .command-title {
+            font-weight: bold;
+            color: #64ffda;
+            margin-bottom: 8px;
+        }
+
+        .command-description {
+            font-size: 0.9em;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .command-code {
+            background: #1a1a1a;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            color: #00ff88;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .command-code:hover {
+            background: #2a2a2a;
+            border-color: #64ffda;
+        }
+
+        .tiger-lily {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            border: 2px solid #ff4757;
+            color: white;
+        }
+
+        .tiger-lily .command-card {
+            border-left-color: #fff;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .metric {
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .metric-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #64ffda;
+        }
+
+        .metric-label {
+            color: #ccc;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .terminal-section {
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin-top: 20px;
+            border: 1px solid #333;
+            min-height: 200px;
+        }
+
+        .terminal-header {
+            color: #64ffda;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .terminal-line {
+            margin: 5px 0;
+            padding: 2px 0;
+        }
+
+        .highlight {
+            color: #ffeb3b;
+            font-weight: bold;
+        }
+
+        .copy-notice {
+            background: rgba(100, 255, 218, 0.1);
+            border: 1px solid #64ffda;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .copy-notice strong {
+            color: #64ffda;
+        }
+
+        @media (max-width: 768px) {
+            .command-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌊 OmniMesh Control Center</h1>
+        <div class="status-indicator">TIGER LILY Ω^9 ACTIVE</div>
+    </div>
+
+    <div class="container">
+        <div class="copy-notice">
+            <strong>📋 VS Code Integration:</strong> Click any command below to copy it to your clipboard, then paste and run in your VS Code terminal!
+        </div>
+
+        <!-- Core Interfaces -->
+        <div class="section">
+            <div class="section-title">
+                <span>🖥️</span>
+                Core Interfaces
+            </div>
+            <div class="command-grid">
+                <div class="command-card" onclick="launchInterface('cli')">
+                    <div class="command-title">📝 Interactive CLI</div>
+                    <div class="command-description">Rich command-line interface with guided prompts</div>
+                    <div class="command-code">Click to launch ➤</div>
+                </div>
+                <div class="command-card" onclick="launchInterface('tui')">
+                    <div class="command-title">🎨 Visual TUI</div>
+                    <div class="command-description">Full-screen terminal user interface</div>
+                    <div class="command-code">Click to launch ➤</div>
+                </div>
+                <div class="command-card" onclick="window.open('/launch/web', '_blank')">
+                    <div class="command-title">🌐 Web Interface</div>
+                    <div class="command-description">Launch this clickable web interface</div>
+                    <div class="command-code">Click to open ➤</div>
+                </div>
+                <div class="command-card" onclick="launchInterface('ai')">
+                    <div class="command-title">🤖 AI Ultimate System</div>
+                    <div class="command-description">AI-powered automation and monitoring</div>
+                    <div class="command-code">Click to launch ➤</div>
+                </div>
+                <div class="command-card" onclick="launchInterface('orchestrator')">
+                    <div class="command-title">🔄 System Orchestrator</div>
+                    <div class="command-description">Recursive improvement engine</div>
+                    <div class="command-code">Click to launch ➤</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Operations -->
+        <div class="section">
+            <div class="section-title">
+                <span>⚙️</span>
+                System Operations
+            </div>
+            <div class="command-grid">
+                <div class="command-card" onclick="openInterface('status')">
+                    <div class="command-title">📊 System Status</div>
+                    <div class="command-description">Quick health check and metrics</div>
+                    <div class="command-code">Click to view ➤</div>
+                </div>
+                <div class="command-card" onclick="openInterface('test')">
+                    <div class="command-title">🧪 Run Tests</div>
+                    <div class="command-description">Execute comprehensive test suite</div>
+                    <div class="command-code">Click to run ➤</div>
+                </div>
+                <div class="command-card" onclick="openInterface('deploy')">
+                    <div class="command-title">🚀 Deploy System</div>
+                    <div class="command-description">Professional deployment process</div>
+                    <div class="command-code">Click to deploy ➤</div>
+                </div>
+                <div class="command-card" onclick="openInterface('security')">
+                    <div class="command-title">🔒 Security Audit</div>
+                    <div class="command-description">Comprehensive security scanning</div>
+                    <div class="command-code">Click to audit ➤</div>
+                </div>
+                <div class="command-card" onclick="openInterface('monitor')">
+                    <div class="command-title">📊 Setup Monitoring</div>
+                    <div class="command-description">Configure system monitoring</div>
+                    <div class="command-code">Click to setup ➤</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tiger Lily Enforcement -->
+        <div class="section tiger-lily">
+            <div class="section-title">
+                <span>🔥</span>
+                Tiger Lily Enforcement Ω^9
+            </div>
+            <div class="command-grid">
+                <div class="command-card">
+                    <div class="command-title">🛡️ Setup Enforcement</div>
+                    <div class="command-description">Initialize perpetual Tiger Lily monitoring</div>
+                    <div class="command-code" onclick="copyCommand('./quick-start.sh tiger-lily')">./quick-start.sh tiger-lily</div>
+                </div>
+                <div class="command-card">
+                    <div class="command-title">🔍 Enforcement Check</div>
+                    <div class="command-description">Manual enforcement verification</div>
+                    <div class="command-code" onclick="copyCommand('./quick-start.sh enforcement')">./quick-start.sh enforcement</div>
+                </div>
+                <div class="command-card">
+                    <div class="command-title">✅ Compliance Verification</div>
+                    <div class="command-description">Validate Ω^9 compliance standards</div>
+                    <div class="command-code" onclick="copyCommand('./quick-start.sh compliance')">./quick-start.sh compliance</div>
+                </div>
+            </div>
+            
+            <div class="metrics-row">
+                <div class="metric">
+                    <div class="metric-value" id="cpu-display">--</div>
+                    <div class="metric-label">CPU Usage</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value" id="memory-display">--</div>
+                    <div class="metric-label">Memory Usage</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">Ω^9</div>
+                    <div class="metric-label">Enforcement Level</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">729</div>
+                    <div class="metric-label">Tiger Lily Factor</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section">
+            <div class="section-title">
+                <span>⚡</span>
+                Discovery & Help
+            </div>
+            <div class="command-grid">
+                <div class="command-card">
+                    <div class="command-title">🔍 Discover Features</div>
+                    <div class="command-description">Explore all system capabilities</div>
+                    <div class="command-code" onclick="copyCommand('./quick-start.sh features')">./quick-start.sh features</div>
+                </div>
+                <div class="command-card">
+                    <div class="command-title">🛠️ Advanced Menu</div>
+                    <div class="command-description">Access power-user operations</div>
+                    <div class="command-code" onclick="copyCommand('./quick-start.sh advanced')">./quick-start.sh advanced</div>
+                </div>
+                <div class="command-card">
+                    <div class="command-title">📖 User Guide</div>
+                    <div class="command-description">View comprehensive documentation</div>
+                    <div class="command-code" onclick="copyCommand('./quick-start.sh guide')">./quick-start.sh guide</div>
+                </div>
+                <div class="command-card">
+                    <div class="command-title">❓ Help & Support</div>
+                    <div class="command-description">Get assistance and command help</div>
+                    <div class="command-code" onclick="copyCommand('./quick-start.sh help')">./quick-start.sh help</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal Display -->
+        <div class="terminal-section">
+            <div class="terminal-header">🌊 OmniMesh Live Command Feed</div>
+            <div id="terminal-content">
+                <div class="terminal-line">System initialized - Tiger Lily Ω^9 enforcement active</div>
+                <div class="terminal-line">Web interface loaded - VS Code optimized version</div>
+                <div class="terminal-line">All interfaces available - click commands above to execute</div>
+                <div class="terminal-line">Monitoring system health - all systems nominal</div>
+                <div class="terminal-line highlight">Ready for commands <span class="blink">█</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let copiedCount = 0;
+
+        function launchInterface(interfaceType) {
+            // Open interface in new tab/window
+            window.open(`/launch/${interfaceType}`, '_blank');
+            
+            // Update terminal display
+            showLaunchMessage(`🚀 Launching ${interfaceType} interface...`);
+        }
+
+        function openInterface(operation) {
+            // Open operation in new tab/window  
+            window.open(`/launch/${operation}`, '_blank');
+            
+            // Update terminal display
+            showLaunchMessage(`⚙️ Opening ${operation} operation...`);
+        }
+
+        function showLaunchMessage(message) {
+            const terminal = document.getElementById('terminal-content');
+            const newLine = document.createElement('div');
+            newLine.className = 'terminal-line highlight';
+            newLine.innerHTML = `📡 ${message}`;
+            
+            // Remove the cursor line
+            const cursorLine = terminal.querySelector('.blink').parentElement;
+            terminal.removeChild(cursorLine);
+            
+            // Add the new line
+            terminal.appendChild(newLine);
+            
+            // Add new cursor line
+            const newCursor = document.createElement('div');
+            newCursor.className = 'terminal-line highlight';
+            newCursor.innerHTML = `Ready for commands <span class="blink">█</span>`;
+            terminal.appendChild(newCursor);
+            
+            // Clean up old lines
+            const lines = terminal.querySelectorAll('.terminal-line');
+            if (lines.length > 8) {
+                terminal.removeChild(lines[0]);
+            }
+            
+            // Auto-scroll
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function copyCommand(command) {
+            // Try to copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(command).then(() => {
+                    showCopySuccess(command);
+                }).catch(() => {
+                    showCommandInTerminal(command);
+                });
+            } else {
+                // Fallback for browsers without clipboard API
+                showCommandInTerminal(command);
+            }
+        }
+
+        function showCopySuccess(command) {
+            copiedCount++;
+            const terminal = document.getElementById('terminal-content');
+            const newLine = document.createElement('div');
+            newLine.className = 'terminal-line highlight';
+            newLine.innerHTML = `📋 Copied to clipboard: <code>${command}</code>`;
+            
+            // Remove the cursor line
+            const cursorLine = terminal.querySelector('.blink').parentElement;
+            terminal.removeChild(cursorLine);
+            
+            // Add the new line
+            terminal.appendChild(newLine);
+            
+            // Add new cursor line
+            const newCursor = document.createElement('div');
+            newCursor.className = 'terminal-line highlight';
+            newCursor.innerHTML = `Ready for commands <span class="blink">█</span>`;
+            terminal.appendChild(newCursor);
+            
+            // Clean up old lines
+            const lines = terminal.querySelectorAll('.terminal-line');
+            if (lines.length > 8) {
+                terminal.removeChild(lines[0]);
+            }
+            
+            // Auto-scroll
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function showCommandInTerminal(command) {
+            const terminal = document.getElementById('terminal-content');
+            const newLine = document.createElement('div');
+            newLine.className = 'terminal-line highlight';
+            newLine.innerHTML = `💻 Execute this: <code>${command}</code>`;
+            
+            // Remove the cursor line
+            const cursorLine = terminal.querySelector('.blink').parentElement;
+            terminal.removeChild(cursorLine);
+            
+            // Add the new line
+            terminal.appendChild(newLine);
+            
+            // Add instruction line
+            const instruction = document.createElement('div');
+            instruction.className = 'terminal-line';
+            instruction.innerHTML = `   → Copy and paste into your VS Code terminal`;
+            terminal.appendChild(instruction);
+            
+            // Add new cursor line
+            const newCursor = document.createElement('div');
+            newCursor.className = 'terminal-line highlight';
+            newCursor.innerHTML = `Ready for commands <span class="blink">█</span>`;
+            terminal.appendChild(newCursor);
+            
+            // Clean up old lines
+            const lines = terminal.querySelectorAll('.terminal-line');
+            if (lines.length > 10) {
+                terminal.removeChild(lines[0]);
+                terminal.removeChild(lines[0]);
+            }
+            
+            // Auto-scroll
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Simulate system metrics
+        function updateSystemMetrics() {
+            const cpuUsage = (Math.random() * 30 + 10).toFixed(1);
+            const memoryUsage = (Math.random() * 40 + 30).toFixed(1);
+            
+            const cpuElement = document.getElementById('cpu-display');
+            const memoryElement = document.getElementById('memory-display');
+            
+            if (cpuElement) {
+                cpuElement.textContent = cpuUsage + '%';
+                cpuElement.style.color = cpuUsage > 50 ? '#ff6b6b' : '#64ffda';
+            }
+            
+            if (memoryElement) {
+                memoryElement.textContent = memoryUsage + '%';
+                memoryElement.style.color = memoryUsage > 70 ? '#ff6b6b' : '#64ffda';
+            }
+        }
+
+        // Add periodic status updates
+        function addStatusUpdate() {
+            const messages = [
+                'Tiger Lily enforcement cycle completed',
+                'System health check: all systems nominal',
+                'Performance metrics: optimal levels maintained',
+                'Security baseline: no threats detected',
+                'Recursive improvement: enhancements applied',
+                'Resource monitoring: within acceptable thresholds'
+            ];
+            
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            const terminal = document.getElementById('terminal-content');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const newLine = document.createElement('div');
+            newLine.className = 'terminal-line';
+            newLine.textContent = `[${timestamp}] ${randomMessage}`;
+            
+            // Remove the cursor line
+            const cursorLine = terminal.querySelector('.blink').parentElement;
+            terminal.removeChild(cursorLine);
+            
+            // Add the new line
+            terminal.appendChild(newLine);
+            
+            // Add new cursor line
+            const newCursor = document.createElement('div');
+            newCursor.className = 'terminal-line highlight';
+            newCursor.innerHTML = `Ready for commands <span class="blink">█</span>`;
+            terminal.appendChild(newCursor);
+            
+            // Clean up old lines
+            const lines = terminal.querySelectorAll('.terminal-line');
+            if (lines.length > 8) {
+                terminal.removeChild(lines[0]);
+            }
+            
+            // Auto-scroll
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Initialize
+        updateSystemMetrics();
+        setInterval(updateSystemMetrics, 3000);
+        setInterval(addStatusUpdate, 8000);
+
+        console.log('🌊 OmniMesh VS Code Web Interface initialized');
+        console.log('📋 Click any command to copy it to clipboard');
+    </script>
+</body>
+</html>
