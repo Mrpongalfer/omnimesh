@@ -206,8 +206,8 @@ Storage:
 
 ```bash
 # Clone and setup
-git clone https://github.com/omnimesh/omnimesh.git
-cd omnimesh/k8s
+git clone https://github.com/omnimesh/omnimesh.git OMNIMESH
+cd OMNIMESH/k8s
 
 # Setup local development cluster
 ./scripts/setup-local-cluster.sh

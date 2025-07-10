@@ -203,8 +203,8 @@ Production Environment:
 
 ```bash
 # Clone and setup
-git clone https://github.com/omnimesh/omnimesh.git
-cd omnimesh/data-fabric
+git clone https://github.com/omnimesh/omnimesh.git OMNIMESH
+cd OMNIMESH/data-fabric
 
 # Setup development environment
 ./scripts/setup-data-fabric.sh

@@ -160,8 +160,8 @@ Production:
 
 ```bash
 # Clone and setup
-git clone https://github.com/omnimesh/omnimesh.git
-cd omnimesh/agents-ai
+git clone https://github.com/omnimesh/omnimesh.git OMNIMESH
+cd OMNIMESH/agents-ai
 
 # Setup development environment
 ./scripts/setup-ai-dev.sh

@@ -60,15 +60,26 @@ else
 fi
 echo "--- PHASE 1 COMPLETE ---"
 
-# Add placeholders for future phases
-echo "--- PHASE 2: (Future) Building Go Compute Node Proxies ---"
-# if [ -d "go-node-proxies" ]; then
-#     (cd go-node-proxies && ./build.sh)
-# else
-#     echo "Skipping Phase 2: 'go-node-proxies' directory not found. This will be built in a later stage."
-# fi
+# Add enhanced build phases
+echo "--- PHASE 2: Building Go Compute Node Proxies ---"
+if [ -d "go-node-proxies" ]; then
+    (cd go-node-proxies && ./build.sh) # Execute build script within go-node-proxies directory
+    echo "✅ Go Node Proxies built successfully"
+else
+    echo "⚠️  'go-node-proxies' directory not found. Skipping Go build."
+fi
 
-echo "--- PHASE 3: (Future) Building Chrome OS Compute Atomix Nodes (CCN Agents) ---"
+echo "--- PHASE 3: Validating Frontend Dependencies ---"
+if [ -d "../FRONTEND/ui-solidjs" ]; then
+    echo "✅ Frontend directory found"
+    if command -v node &> /dev/null && command -v npm &> /dev/null; then
+        echo "✅ Node.js and npm available for frontend builds"
+    else
+        echo "⚠️  Node.js/npm not found. Frontend builds may require manual setup."
+    fi
+else
+    echo "⚠️  Frontend directory not found"
+fi
 echo "--- PHASE 4: (Future) Building AI Agents ---"
 echo "--- PHASE 5: (Future) Building Architect's Omnitide Control Panel (UI) ---"
 echo "--- PHASE 6: (Future) Building Omnitide Data Fabric Implementation ---"

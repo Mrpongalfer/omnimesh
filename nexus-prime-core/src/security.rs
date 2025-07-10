@@ -1,7 +1,7 @@
 // nexus-prime-core/src/security.rs - Advanced Security and mTLS Implementation
 
 use crate::config::SecurityConfig;
-use rustls::{Certificate, PrivateKey, ServerConfig as RustlsServerConfig, ClientConfig as RustlsClientConfig};
+use rustls::{pki_types::{CertificateDer, PrivateKeyDer}, ServerConfig as RustlsServerConfig, ClientConfig as RustlsClientConfig};
 use rustls_pemfile::{certs, pkcs8_private_keys};
 use std::fs::File;
 use std::io::BufReader;

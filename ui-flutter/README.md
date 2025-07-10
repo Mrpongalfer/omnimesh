@@ -187,8 +187,8 @@ Mobile Testing:
 
 ```bash
 # Clone and setup
-git clone https://github.com/omnimesh/omnimesh.git
-cd omnimesh/ui-flutter
+git clone https://github.com/omnimesh/omnimesh.git OMNIMESH
+cd OMNIMESH/ui-flutter
 
 # Install dependencies
 flutter pub get

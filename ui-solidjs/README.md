@@ -192,8 +192,8 @@ Progressive Enhancement:
 
 ```bash
 # Clone and setup
-git clone https://github.com/omnimesh/omnimesh.git
-cd omnimesh/ui-solidjs
+git clone https://github.com/omnimesh/omnimesh.git OMNIMESH
+cd OMNIMESH/ui-solidjs
 
 # Install dependencies
 npm install

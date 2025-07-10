@@ -23,11 +23,13 @@ use std::collections::HashMap;
 
 pub mod structured_logging;
 pub mod metrics;
-pub mod tracing;
+pub mod distributed_tracing;
+pub mod stubs;
 
 pub use structured_logging::*;
 pub use metrics::*;
-pub use tracing::*;
+pub use distributed_tracing::*;
+pub use stubs::*;
 
 /// Centralized observability engine managing all telemetry collection
 #[derive(Clone)]

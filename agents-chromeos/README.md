@@ -207,8 +207,8 @@ Recommended Specifications:
 
 ```bash
 # Clone and setup
-git clone https://github.com/omnimesh/omnimesh.git
-cd omnimesh/agents-chromeos
+git clone https://github.com/omnimesh/omnimesh.git OMNIMESH
+cd OMNIMESH/agents-chromeos
 
 # Setup development environment
 ./scripts/setup-chromeos-dev.sh
