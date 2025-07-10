@@ -449,9 +449,27 @@ setup_control_center() {
     # Make C2 Center executable
     chmod +x omni-c2-center.py
     
-    # Install additional C2 Center dependencies
-    log_info "Installing C2 Center dependencies..."
-    pip install gitpython pyyaml psutil requests
+    # Configure frontend-backend connections
+    log_info "🔗 Configuring frontend-backend connections..."
+    
+    if [[ -f "FRONTEND/ui-solidjs/.env.example" ]]; then
+        # Copy environment template and configure endpoints
+        cp "FRONTEND/ui-solidjs/.env.example" "FRONTEND/ui-solidjs/.env"
+        
+        # Update environment with detected endpoints
+        if [[ -f "FRONTEND/ui-solidjs/.env" ]]; then
+            sed -i 's|VITE_API_BASE_URL=.*|VITE_API_BASE_URL=http://localhost:8080|' "FRONTEND/ui-solidjs/.env"
+            sed -i 's|VITE_GRPC_ENDPOINT=.*|VITE_GRPC_ENDPOINT=http://localhost:50052|' "FRONTEND/ui-solidjs/.env"
+            sed -i 's|VITE_NEXUS_CORE_URL=.*|VITE_NEXUS_CORE_URL=http://localhost:50053|' "FRONTEND/ui-solidjs/.env"
+            log_success "Frontend environment configured with backend endpoints"
+        fi
+    fi
+    
+    # Verify control center dependencies
+    if [[ "$PYTHON_CMD" ]]; then
+        log_info "Installing C2 Center dependencies..."
+        $PYTHON_CMD -m pip install textual rich gitpython pyyaml psutil requests
+    fi
     
     # Create desktop shortcuts (Linux/macOS)
     if [[ "$OS_TYPE" != "windows" ]]; then
