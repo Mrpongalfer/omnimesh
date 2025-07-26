@@ -1,163 +1,297 @@
-# 🌊 OmniMesh Compute Fabric
+# 🌟 OMNIMESH - Trinity Convergence Platform
 
-[![Rust](https://img.shields.io/badge/Rust-1.75+-CE422B?style=for-the-badge&logo=rust&logoColor=white)](https://rustlang.org/)
-[![Go](https://img.shields.io/badge/Go-1.23+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://golang.org/)
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org/)
-[![Docker](https://img.shields.io/badge/Docker-25.0+-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-1.28+-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+**The Ultimate LoL Nexus Compute Fabric** - A revolutionary unified platform integrating **PONGEX Core Engine**, **omniterm Interface Layer**, and **OMNIMESH Platform Components** into a single, production-ready Trinity architecture.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
-[![Security](https://img.shields.io/badge/Security-mTLS%20%2B%20Zero%20Trust-FF6B6B?style=for-the-badge&logo=security&logoColor=white)](#security)
-[![Performance](https://img.shields.io/badge/Performance-Rust%20%2B%20Tokio-CE422B?style=for-the-badge&logo=rust&logoColor=white)](#performance)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mrpongalfer/omnimesh)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Trinity Status](https://img.shields.io/badge/trinity-convergence-gold.svg)](https://github.com/mrpongalfer/omnimesh)
 
-<div align="center">
-  <h2>🚀 Next-Generation Distributed AI Orchestration Platform</h2>
-  <p><em>Architect's Absolute Dominion over Heterogeneous Computing Resources</em></p>
-  
-  <a href="#quick-start">🚀 Quick Start</a> •
-  <a href="#architecture">🏗️ Architecture</a> •
-  <a href="#features">✨ Features</a> •
-  <a href="#documentation">📚 Docs</a> •
-  <a href="#contributing">🤝 Contributing</a> •
-  <a href="#roadmap">🛣️ Roadmap</a>
-</div>
+## 🎯 **Trinity Convergence Architecture**
 
----
-
-## 🏛️ Repository Structure
-
-This monorepo contains the complete OmniMesh Compute Fabric ecosystem:
-
-### 🔧 BACKEND
-The BACKEND directory contains the core infrastructure components:
-- **Nexus Prime Core** - Rust-based orchestration engine
-- **Go Node Proxies** - Go-based edge compute nodes  
-- **AI Agents** - Specialized AI agent implementations
-- **Data Fabric** - Distributed data processing layer
-
-### 🎨 FRONTEND
-The FRONTEND directory contains the UI components:
-- **SolidJS UI** - High-performance web interface
-- **Flutter UI** - Cross-platform mobile/desktop interface
-
-### ☁️ INFRASTRUCTURE
-The infrastructure directory contains production deployment tools:
-- **Terraform Configuration** - Complete GCP infrastructure as code
-- **Kubernetes Manifests** - GitOps-ready deployment configurations
-- **ArgoCD Setup** - Automated continuous deployment
-
-### 🚀 OmniMesh Control Center (Dual-Mode TUI)
-
-The OmniMesh Control Center provides two powerful interfaces for managing the entire OmniMesh lifecycle:
-
-1. **CLI Mode**: Rich terminal interface with menu-driven navigation
-2. **TUI Mode**: Full-screen Textual interface with mouse support and advanced widgets
-
-```bash
-# Launch the unified launcher (defaults to CLI mode)
-python omni_launcher.py
-
-# Launch full TUI mode with mouse support
-python omni_launcher.py --tui
-
-# Run setup wizard
-python omni_launcher.py --setup
-
-# Show system status
-python omni_launcher.py --status
-
-# Direct CLI access (advanced users)
-python omni-interactive-tui.py
-
-# Direct TUI access (advanced users)
-python omni_textual_tui.py
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    TRINITY CONVERGENCE                      │
+├─────────────────────────────────────────────────────────────┤
+│  PONGEX Core Engine (Rust)  │  omniterm Interface (Python) │
+│  • High-performance compute │  • Natural language CLI      │
+│  • 283 compiled dependencies│  • Interactive TUI           │
+│  • Memory-safe architecture │  • Command orchestration     │
+├─────────────────────────────────────────────────────────────┤
+│              OMNIMESH Platform Layer                        │
+│  • Unified orchestration    │  • Production deployment     │
+│  • Health monitoring        │  • Distributed computing     │
+│  • Configuration management │  • Cloud-native scaling      │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-#### Key Features:
-- **Dual Architecture**: Choose between CLI menus or full TUI experience
-- **AI Integration**: Natural language commands and predictive automation
-- **Real-time Monitoring**: Live system metrics and service health
-- **Configuration Management**: Visual editors with validation
-- **Container Orchestration**: Docker and Kubernetes management
-- **Security Management**: Certificate and secret management
-- **Self-healing Diagnostics**: Automated issue detection and resolution
+## ⚡ **Quick Start**
 
-## 🚀 Quick Start
-
-### **🎯 One-Command Installation (Recommended)**
+### **1. One-Command Setup**
 ```bash
-# Universal installer - automatically sets up everything
-curl -fsSL https://raw.githubusercontent.com/Mrpongalfer/omnimesh/main/bootstrap.sh | bash
-
-# Or with options
-curl -fsSL https://raw.githubusercontent.com/Mrpongalfer/omnimesh/main/bootstrap.sh | bash -s -- --dev --ai
+git clone https://github.com/mrpongalfer/omnimesh.git
+cd omnimesh
+make setup    # Installs all dependencies (Rust, Go, Python, Node.js)
 ```
 
-### **📥 Manual Installation**
+### **2. Trinity Health Check**
 ```bash
-# Clone the repository
-git clone https://github.com/Mrpongalfer/omnimesh.git OMNIMESH
-cd OMNIMESH
-
-# Run the universal installer
-chmod +x install-omnimesh.sh
-./install-omnimesh.sh
-
-# Or install manually
-pip install -r requirements.txt
-
-# Launch the Control Center (CLI mode)
-python omni_launcher.py
-
-# Or launch the full TUI interface
-python omni_launcher.py --tui
+make health   # Verifies all Trinity components are operational
 ```
 
-### Backend Setup
-
+### **3. Natural Language Commands**
 ```bash
-cd BACKEND
-./scripts/setup-dev.sh
+# Direct CLI usage
+./interfaces/cli/nexus_cli.py "check system health"
+./interfaces/cli/nexus_cli.py "deploy in production mode"
+./interfaces/cli/nexus_cli.py "build trinity system"
+
+# Or through make targets
+make health   # System health check
+make deploy   # Production deployment
+make build    # Complete Trinity build
 ```
 
-### Frontend Setup
+## 🏗️ **Project Structure**
 
-```bash
-cd FRONTEND/ui-solidjs
-npm install
-npm run dev
+```
+omnimesh/
+├── 🏛️  core/                    # Trinity Core Systems
+│   ├── nexus_orchestrator.py   # Main Trinity orchestrator
+│   ├── agents/                 # Autonomous agents
+│   │   ├── exwork_agent.py    # ExWork execution agent
+│   │   └── models/            # Agent data models
+│   └── fabric_proxies/        # gRPC communication bridges
+│       └── fabric_proxy.go    # Go-based fabric proxy
+├── 🖥️  interfaces/              # User Interface Layer
+│   ├── cli/                   # Command Line Interface
+│   │   └── nexus_cli.py      # Natural language CLI
+│   ├── tui/                   # Terminal User Interface
+│   └── web_frontend/          # Web Interface
+├── ⚙️  platform/               # Platform Components
+│   ├── rust_engine/          # PONGEX Rust engine
+│   ├── container_defs/       # Docker containers
+│   └── orchestration/        # K8s deployments
+├── 🔧  automation/             # Build & Deploy Scripts
+├── 📋  config/                 # Configuration Files
+│   └── nexus_config.toml     # Unified Trinity config
+├── 🧪  tests/                  # Test Suites
+├── 📚  docs/                   # Documentation
+└── 🏗️  infrastructure/         # Terraform & K8s
 ```
 
-### Infrastructure Setup
+## 🚀 **Core Features**
+
+### **🔮 Natural Language Interface**
+- **Conversational Commands**: Talk to your infrastructure
+- **Intent Recognition**: Smart command parsing
+- **Multi-modal Interaction**: CLI, TUI, Web, API
 
 ```bash
-cd infrastructure
-make init
-make plan ENV=dev
-make apply
+# These all work naturally:
+"check system health"
+"deploy in production mode"  
+"build the entire trinity system"
+"show me the current status"
 ```
 
-## 📚 Documentation
+### **⚡ High-Performance Core**
+- **Rust Engine**: Memory-safe, zero-cost abstractions
+- **Go Fabric Proxies**: High-throughput gRPC communication
+- **Python Orchestration**: Dynamic workflow management
+- **Async Architecture**: Non-blocking operations throughout
 
-See the README files in each component directory for detailed documentation:
+### **🏗️ Production-Ready Infrastructure**
+- **Container-Native**: Docker + Kubernetes ready
+- **Cloud Agnostic**: AWS, GCP, Azure support
+- **Auto-Scaling**: Dynamic resource management
+- **Health Monitoring**: Comprehensive system observability
 
-- [Backend Documentation](BACKEND/README.md)
-- [Frontend Documentation](FRONTEND/ui-solidjs/README.md)
-- [Infrastructure Documentation](infrastructure/README.md)
-- [Kubernetes Deployment](kubernetes/README.md)
+### **🔧 Developer Experience**
+- **Single Makefile**: `make build`, `make test`, `make deploy`
+- **Hot Reloading**: Development mode with instant updates
+- **Comprehensive Testing**: Unit, integration, and E2E tests
+- **Rich Documentation**: Auto-generated API docs
 
-## 🤝 Contributing
+## 📖 **Usage Examples**
 
-We welcome contributions! Please see our [Contributing Guide](BACKEND/CONTRIBUTING.md) for details.
+### **Basic Operations**
+```bash
+# Health monitoring
+make health                           # Full system health check
+make test                            # Run test suite
+make clean                           # Clean build artifacts
 
-## 📄 License
+# Development
+make build                           # Build all components
+make format                          # Format codebase
+make codebase-map                    # Generate system map
+```
+
+### **Natural Language CLI**
+```bash
+# Interactive mode
+./interfaces/cli/nexus_cli.py --interactive
+
+# Direct commands
+./interfaces/cli/nexus_cli.py "check system health"
+./interfaces/cli/nexus_cli.py "deploy in production mode"
+./interfaces/cli/nexus_cli.py "build trinity system"
+```
+
+### **Production Deployment**
+```bash
+# Local development
+make setup && make build && make health
+
+# Production deployment
+make deploy                          # Deploy to production
+make install                         # Install global commands
+```
+
+## 🛠️ **Technology Stack**
+
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Core Engine** | Rust | High-performance computing, memory safety |
+| **Orchestration** | Python 3.10+ | Dynamic workflows, AI integration |
+| **Communication** | Go + gRPC | High-throughput service mesh |
+| **Interface** | Python + Textual | Rich terminal and web interfaces |
+| **Configuration** | TOML | Unified system configuration |
+| **Containers** | Docker + K8s | Cloud-native deployment |
+| **Infrastructure** | Terraform | Infrastructure as Code |
+
+## 📊 **System Requirements**
+
+### **Minimal Setup**
+- **OS**: Linux, macOS, or Windows WSL2
+- **Memory**: 4GB RAM (8GB recommended)
+- **Storage**: 10GB available space
+- **Network**: Internet connection for dependency downloads
+
+### **Development Setup**
+- **Rust**: 1.70+ (auto-installed by make setup)
+- **Go**: 1.20+ (auto-installed by make setup)
+- **Python**: 3.10+ (system requirement)
+- **Node.js**: 18+ (auto-installed by make setup)
+
+### **Production Setup**
+- **CPU**: 4+ cores recommended
+- **Memory**: 16GB+ RAM for full deployment
+- **Storage**: 50GB+ for production data
+- **Network**: High-bandwidth for distributed operations
+
+## 🧪 **Testing**
+
+```bash
+# Run all tests
+make test
+
+# Component-specific tests
+make test-rust                       # Rust engine tests
+make test-go                         # Go proxy tests
+make test-python                     # Python orchestrator tests
+make test-integration                # End-to-end integration tests
+```
+
+## 🔧 **Configuration**
+
+The system uses a unified configuration file at `config/nexus_config.toml`:
+
+```toml
+[trinity]
+name = "LoL Nexus Compute Fabric"
+version = "3.0.0"
+mode = "production"
+
+[core]
+orchestrator_port = 8080
+health_check_interval = 30
+max_concurrent_operations = 100
+
+[agents]
+exwork_enabled = true
+auto_scaling = true
+resource_limits = { cpu = "4.0", memory = "8Gi" }
+
+[interfaces]
+cli_enabled = true
+web_enabled = true
+api_enabled = true
+
+[platform]
+rust_engine_threads = 8
+go_proxy_pool_size = 50
+python_workers = 16
+```
+
+## 🚀 **Deployment Options**
+
+### **Local Development**
+```bash
+make setup && make build && make health
+```
+
+### **Docker Containers**
+```bash
+docker-compose up -d                 # Start all services
+docker-compose logs -f trinity       # View logs
+```
+
+### **Kubernetes**
+```bash
+kubectl apply -f kubernetes/         # Deploy to K8s cluster
+kubectl get pods -l app=trinity      # Check deployment status
+```
+
+### **Cloud Deployment**
+```bash
+cd infrastructure/
+terraform init && terraform apply    # Deploy infrastructure
+make deploy                          # Deploy application
+```
+
+## 📚 **Documentation**
+
+- **[User Guide](docs/user-guide.md)**: Complete user documentation
+- **[API Reference](docs/api-reference.md)**: Comprehensive API documentation
+- **[Developer Guide](docs/developer-guide.md)**: Development and contribution guidelines
+- **[Deployment Guide](docs/deployment-guide.md)**: Production deployment instructions
+- **[Architecture Overview](docs/architecture.md)**: System design and architecture
+
+## 🤝 **Contributing**
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### **Development Workflow**
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and test: `make test`
+4. Commit your changes: `git commit -m 'Add amazing feature'`
+5. Push to the branch: `git push origin feature/amazing-feature`
+6. Open a Pull Request
+
+## 📄 **License**
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🙋 **Support**
+
+- **Issues**: [GitHub Issues](https://github.com/mrpongalfer/omnimesh/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/mrpongalfer/omnimesh/discussions)
+- **Documentation**: [Project Wiki](https://github.com/mrpongalfer/omnimesh/wiki)
+
+## 🎯 **Roadmap**
+
+- [x] **Trinity Convergence Architecture** - Complete platform integration
+- [x] **Natural Language Interface** - Conversational system control
+- [x] **Production-Ready Infrastructure** - Enterprise deployment
+- [ ] **Advanced AI Integration** - Machine learning workflows
+- [ ] **Multi-Cloud Support** - Extended cloud provider support
+- [ ] **Visual Dashboard** - Real-time system monitoring UI
+- [ ] **Plugin Ecosystem** - Extensible component architecture
+
 ---
 
-<div align="center">
-  <strong>Built with ❤️ by the OmniMesh Team</strong>
-</div>
+**Built with ❤️ by the Trinity Convergence Team**
+
+*OMNIMESH - Where Innovation Meets Production Reality* 🌟

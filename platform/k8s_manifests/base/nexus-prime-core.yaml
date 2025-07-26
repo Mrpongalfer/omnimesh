@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexus-prime-core
+  labels:
+    app: nexus-prime-core
+    component: backend
+    tier: core
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nexus-prime-core
+  template:
+    metadata:
+      labels:
+        app: nexus-prime-core
+        component: backend
+        tier: core
+    spec:
+      serviceAccountName: nexus-prime-core
+      containers:
+      - name: nexus-prime-core
+        image: gcr.io/PROJECT_ID/nexus-prime-core:latest
+        ports:
+        - containerPort: 50053
+          name: grpc
+        - containerPort: 8080
+          name: http
+        - containerPort: 8081
+          name: websocket
+        env:
+        - name: RUST_LOG
+          value: "info"
+        - name: NEXUS_GRPC_PORT
+          value: "50053"
+        - name: NEXUS_WS_PORT
+          value: "8081"
+        - name: NEXUS_HTTP_PORT
+          value: "8080"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-config
+              key: url
+        - name: JWT_SIGNING_KEY
+          valueFrom:
+            secretKeyRef:
+              name: jwt-config
+              key: signing-key
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: data
+          mountPath: /app/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: nexus-prime-core-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexus-prime-core
+  labels:
+    app: nexus-prime-core
+spec:
+  selector:
+    app: nexus-prime-core
+  ports:
+  - name: grpc
+    port: 50053
+    targetPort: 50053
+    protocol: TCP
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  - name: websocket
+    port: 8081
+    targetPort: 8081
+    protocol: TCP
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nexus-prime-core
+  annotations:
+    iam.gke.io/gcp-service-account: nexus-prime-core@PROJECT_ID.iam.gserviceaccount.com
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nexus-prime-core-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: ssd

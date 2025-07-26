@@ -63,7 +63,10 @@ COMMANDS:
     build                Build all components
     setup                Run setup and installation
     update               Update from GitHub
-    push                 Push changes to GitHub
+    push                 Push changes to GitHub (comprehensive)
+    save [message]       Quick save and push (with optional message)
+    commit "message"     Quick commit with message
+    sync                 Full sync: pull + push
     help, -h, --help     Show this help message
 
 EXAMPLES:
@@ -73,7 +76,13 @@ EXAMPLES:
     omnimesh test        # Run all tests
     omnimesh build       # Build all components
     omnimesh status      # Show system status
-    omnimesh push        # Push to GitHub
+    
+    # Git operations:
+    omnimesh push        # Push all changes (main + submodules)
+    omnimesh save        # Quick save and push
+    omnimesh save "fix"  # Save with message and push
+    omnimesh commit "msg" # Just commit, don't push
+    omnimesh sync        # Pull updates then push changes
 
 DEVELOPMENT:
     omnimesh frontend    # Work with frontend
@@ -167,6 +176,39 @@ main() {
             ;;
         "push")
             print_status "Pushing to GitHub..."
+            ./scripts/auto-push-omnimesh.sh
+            ;;
+        "push-all"|"pushall")
+            print_status "Comprehensive push: main + submodules + everything..."
+            ./scripts/auto-push-omnimesh.sh
+            ;;
+        "commit")
+            print_status "Quick commit with message..."
+            if [[ -n "${2:-}" ]]; then
+                git add -A
+                git commit -m "$2"
+                print_info "Committed with message: $2"
+            else
+                print_error "Usage: omni commit \"Your commit message\""
+            fi
+            ;;
+        "save")
+            print_status "Quick save and push..."
+            if [[ -n "${2:-}" ]]; then
+                git add -A
+                git commit -m "$2"
+                ./scripts/auto-push-omnimesh.sh
+            else
+                timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+                git add -A
+                git commit -m "🌊 Quick save: ${timestamp}"
+                ./scripts/auto-push-omnimesh.sh
+            fi
+            ;;
+        "sync")
+            print_status "Full sync: pull + push..."
+            git pull origin main
+            git submodule update --recursive --remote
             ./scripts/auto-push-omnimesh.sh
             ;;
         "frontend")

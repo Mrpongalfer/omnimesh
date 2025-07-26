@@ -1,39 +1,46 @@
-# OmniMesh TUI Configuration
-environment:
-  current: "development"
-  available: ["development", "staging", "production"]
-
-services:
-  nexus_core:
-    image: "nexus-prime-core:latest"
-    ports: [8080, 8443]
-    health_check: "/health"
-  
-  go_proxies:
-    image: "go-node-proxies:latest"
-    ports: [9090, 9443]
-    replicas: 3
-
 ai:
-  provider: "openai"
-  model: "gpt-4"
   features:
-    - "natural_language_commands"
-    - "predictive_scaling"
-    - "anomaly_detection"
-
+  - natural_language_commands
+  - predictive_scaling
+  - anomaly_detection
+  model: gpt-4
+  provider: openai
+environment:
+  available:
+  - development
+  - staging
+  - production
+  current: development
 monitoring:
-  prometheus:
-    enabled: true
-    port: 9090
   grafana:
     enabled: true
     port: 3000
   jaeger:
     enabled: true
     port: 16686
-
+  prometheus:
+    enabled: true
+    port: 9090
+paths:
+  docs: /home/pong/Documents/OMNIMESH/docs
+  frontend: /home/pong/Documents/OMNIMESH/FRONTEND/ui-solidjs
+  go_proxies: /home/pong/Documents/OMNIMESH/BACKEND/go-node-proxies
+  nexus_core: /home/pong/Documents/OMNIMESH/BACKEND/nexus-prime-core
+  scripts: /home/pong/Documents/OMNIMESH/scripts
 security:
+  certificate_path: /etc/ssl/certs/omnimesh
+  secret_encryption: aes-256-gcm
   tls_enabled: true
-  certificate_path: "/etc/ssl/certs/omnimesh"
-  secret_encryption: "aes-256-gcm"
+services:
+  go_proxies:
+    image: go-node-proxies:latest
+    ports:
+    - 9090
+    - 9443
+    replicas: 3
+  nexus_core:
+    health_check: /health
+    image: nexus-prime-core:latest
+    ports:
+    - 8080
+    - 8443

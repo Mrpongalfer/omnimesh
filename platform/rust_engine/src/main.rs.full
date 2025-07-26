@@ -1,0 +1,450 @@
+// nexus-prime-core/src/main.rs - The Unyielding Heart of the Nexus Prime
+// Enhanced with Tiger Lily Compliance Framework - Institutional Rigor
+
+use nexus_prime_core::*;
+use nexus_prime_core::fabric_proto::fabric::{
+    fabric_service_server::{FabricService, FabricServiceServer},
+    *,
+};
+use nexus_prime_core::observability::{initialize_observability, ObservabilityEngine};
+use tokio_stream::wrappers::BroadcastStream;
+use futures::StreamExt;
+use std::sync::Arc;
+use tokio::sync::{broadcast, mpsc};
+use tracing::{info, warn, error, debug}; // Use tracing for structured observability
+use uuid::Uuid;
+use tonic::{Request, Response, Status};
+use tonic::transport::Server;
+use axum::{
+    extract::{
+        ws::{Message, WebSocket, WebSocketUpgrade},
+        State,
+    },
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
+use std::net::SocketAddr;
+use std::time::{Duration, Instant};
+use std::collections::HashMap;
+
+// FabricServiceServerImpl: Implements the gRPC service definition for Nexus Prime
+#[derive(Clone)] // Derive Clone for easy sharing in async contexts
+pub struct FabricServiceServerImpl {
+    fabric_manager: FabricManager,
+    // For streaming fabric events to the UI/other listeners
+    event_stream_tx: broadcast::Sender<FabricEvent>,
+    // Observability engine for institutional rigor
+    observability: Arc<ObservabilityEngine>,
+}
+
+#[tonic::async_trait]
+impl FabricService for FabricServiceServerImpl {
+    type StreamFabricEventsStream =
+        std::pin::Pin<Box<dyn tokio_stream::Stream<Item = Result<FabricEvent, tonic::Status>> + Send + 'static>>;
+
+    // Handles registration of new compute nodes/proxies
+    async fn register_agent(
+        &self,
+        request: Request<AgentRegistrationRequest>,
+    ) -> Result<Response<AgentRegistrationResponse>, Status> {
+        let start_time = Instant::now();
+        let req = request.into_inner();
+        
+        // Create operational context
+        let correlation_id = Uuid::new_v4().to_string();
+        let request_id = Uuid::new_v4().to_string();
+        
+        info!(
+            correlation_id = %correlation_id,
+            request_id = %request_id,
+            agent_type = %req.agent_type,
+            ip_address = %req.ip_address,
+            capabilities = %req.capabilities,
+            "🔌 Agent registration request received"
+        );
+
+        // Assign a unique Node ID
+        let node_id = format!("node-{}", Uuid::new_v4());
+        let node = ComputeNode {
+            id: node_id.clone(),
+            node_type: match AgentType::from_i32(req.agent_type) {
+                Some(AgentType::Pc) => "PC".to_string(),
+                Some(AgentType::Unspecified) => "Unknown".to_string(),
+                _ => "Other".to_string(),
+            },
+            last_seen: chrono::Utc::now(),
+            status: "Online".to_string(),
+            capabilities: req.capabilities.clone(),
+            ip_address: req.ip_address.clone(),
+        };
+        
+        // Register node with fabric manager
+        self.fabric_manager.register_node(node).await;
+        
+        // Record metrics
+        let duration = start_time.elapsed();
+        self.observability.record_request(
+            "grpc",
+            "register_agent",
+            200,
+            duration,
+            None
+        );
+        
+        // Update system health
+        self.observability.update_subsystem_health(
+            "agent_registration",
+            nexus_prime_core::observability::HealthStatus::Healthy,
+            0,
+            0,
+            95.0,
+            vec![
+                ("last_registration".to_string(), chrono::Utc::now().to_rfc3339()),
+                ("node_id".to_string(), node_id.clone()),
+            ].into_iter().collect(),
+        ).await;
+
+        info!(
+            correlation_id = %correlation_id,
+            request_id = %request_id,
+            node_id = %node_id,
+            duration_ms = %duration.as_millis(),
+            "✅ Agent registration completed successfully"
+        );
+
+        Ok(Response::new(AgentRegistrationResponse {
+            node_id,
+            status: "REGISTERED".to_string(),
+            message: "Successfully registered compute node.".to_string(),
+        }))
+    }
+
+    // Handles status updates from compute nodes/proxies or AI agents
+    async fn update_agent_status(
+        &self,
+        request: Request<AgentStatusUpdate>,
+    ) -> Result<Response<CommandResponse>, Status> {
+        let start_time = Instant::now();
+        let req = request.into_inner();
+        
+        let correlation_id = Uuid::new_v4().to_string();
+        let request_id = Uuid::new_v4().to_string();
+        
+        info!(
+            correlation_id = %correlation_id,
+            request_id = %request_id,
+            node_id = %req.node_id,
+            status_type = %req.status_type,
+            status_value = %req.status_value,
+            "📊 Agent status update received"
+        );
+
+        if req.node_id.is_empty() {
+            error!(
+                correlation_id = %correlation_id,
+                request_id = %request_id,
+                "❌ Node ID cannot be empty"
+            );
+            return Err(Status::invalid_argument("Node ID cannot be empty."));
+        }
+
+        match StatusType::from_i32(req.status_type) {
+            Some(StatusType::Node) => {
+                self.fabric_manager
+                    .update_node_status(
+                        req.node_id.clone(),
+                        req.status_value.clone(),
+                        req.telemetry_data.clone(),
+                    )
+                    .await;
+            }
+            Some(StatusType::AiAgent) => {
+                self.fabric_manager
+                    .update_ai_agent_status(
+                        req.node_id.clone(),
+                        req.status_value.clone(),
+                        req.current_task.clone(),
+                        req.task_progress,
+                    )
+                    .await;
+            }
+            _ => {
+                warn!("[gRPC] Received unknown status type in update: {}", req.status_type);
+            }
+        }
+
+        Ok(Response::new(CommandResponse {
+            status: "ACK".to_string(),
+            message: "Status update received.".to_string(),
+        }))
+    }
+
+    // Allows UI or other services to subscribe to fabric events
+    async fn stream_fabric_events(
+        &self,
+        _request: tonic::Request<()>,
+    ) -> Result<tonic::Response<Self::StreamFabricEventsStream>, tonic::Status> {
+        info!("[gRPC] Client subscribed to fabric events.");
+        let rx = self.event_stream_tx.subscribe();
+        let stream = BroadcastStream::new(rx).map(|result| match result {
+            Ok(event) => Ok(event),
+            Err(e) => Err(tonic::Status::unknown(format!("Broadcast error: {}", e))),
+        });
+        Ok(tonic::Response::new(Box::pin(stream) as Self::StreamFabricEventsStream))
+    }
+
+    // Architect issues commands to the fabric (e.g., via UI)
+    async fn send_fabric_command(
+        &self,
+        request: Request<FabricCommand>,
+    ) -> Result<Response<CommandResponse>, Status> {
+        let cmd = request.into_inner();
+        self.fabric_manager.issue_command(cmd).await;
+        Ok(Response::new(CommandResponse {
+            status: "COMMAND_SENT".to_string(),
+            message: "Command dispatched to fabric.".to_string(),
+        }))
+    }
+}
+
+// WebSocket handler
+async fn ws_handler(
+    ws: WebSocketUpgrade,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    ws.on_upgrade(|socket| handle_socket(socket, state))
+}
+
+async fn handle_socket(mut socket: WebSocket, state: Arc<AppState>) {
+    // Subscribe to the event bus
+    let mut rx = state.event_bus_tx.subscribe();
+
+    // Send a welcome message
+    if socket
+        .send(Message::Text(
+            "Connected to Nexus Prime WebSocket!".into(),
+        ))
+        .await
+        .is_err()
+    {
+        return;
+    }
+
+    // Spawn a task to send events to the client
+    tokio::spawn(async move {
+        while let Ok(event) = rx.recv().await {
+            let event_json = serde_json::to_string(&event).unwrap_or_else(|_| "{\"error\":\"Failed to serialize event\"}".to_string());
+            if socket.send(Message::Text(event_json)).await.is_err() {
+                break;
+            }
+        }
+    });
+}
+
+// AppState for sharing between handlers
+#[derive(Clone)]
+struct AppState {
+    event_bus_tx: broadcast::Sender<InternalFabricEvent>,
+    fabric_manager: FabricManager,
+}
+
+
+// Workaround: define a local Empty struct matching google.protobuf.Empty
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Empty {}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::init();
+    info!("Nexus Prime Rust Core: Startup complete. Architect's Will is Absolute.");
+
+    // Initialize shared state and channels
+    let (event_bus_tx, _) = broadcast::channel(100);
+    let (event_stream_tx, _) = broadcast::channel(100);
+    let (command_tx, command_rx) = mpsc::channel(100);
+
+    let db = sled::open("nexus_prime_db")?;
+
+    let fabric_manager =
+        FabricManager::new(event_bus_tx.clone(), event_stream_tx.clone(), command_tx, db);
+    let grpc_service = FabricServiceServerImpl {
+        fabric_manager: fabric_manager.clone(),
+        event_stream_tx: event_stream_tx.clone(),
+    };
+
+    // Create the application state for Axum
+    let app_state = Arc::new(AppState {
+        event_bus_tx: event_bus_tx.clone(),
+        fabric_manager: fabric_manager.clone(),
+    });
+
+    // Spawn the command processor
+    tokio::spawn(command_processor(command_rx, fabric_manager.clone()));
+
+    // Spawn the periodic pruner
+    tokio::spawn(periodic_pruner(fabric_manager.clone()));
+
+    // Initialize observability engine with Tiger Lily compliance
+    let observability = Arc::new(initialize_observability(
+        "nexus-prime-core",
+        "1.0.0",
+        "production",
+        &format!("deployment-{}", Uuid::new_v4()),
+    ));
+
+    // Update gRPC service with observability
+    let grpc_service = FabricServiceServerImpl {
+        fabric_manager: fabric_manager.clone(),
+        event_stream_tx: event_tx.clone(),
+        observability: observability.clone(),
+    };
+
+    // Start gRPC server (on 50053) and WebSocket server (on 8081) concurrently
+    let grpc_addr = "[::1]:50053".parse()?;
+    let ws_addr: SocketAddr = "0.0.0.0:8081".parse()?;
+
+    // Add metrics endpoint
+    let metrics_addr: SocketAddr = "0.0.0.0:8080".parse()?;
+    let metrics_observability = observability.clone();
+    let metrics_server = tokio::spawn(async move {
+        let app = Router::new()
+            .route("/metrics", get(move || async move {
+                match metrics_observability.export_metrics().await {
+                    Ok(metrics) => metrics,
+                    Err(e) => {
+                        error!("Failed to export metrics: {}", e);
+                        "# Error exporting metrics".to_string()
+                    }
+                }
+            }))
+            .route("/health", get(move || async move {
+                let health = metrics_observability.get_health_state().await;
+                format!("{{\"status\": \"{:?}\", \"timestamp\": \"{}\"}}", 
+                    health.overall_status, health.last_health_check.to_rfc3339())
+            }));
+        
+        info!("Starting metrics server on {}", metrics_addr);
+        let listener = tokio::net::TcpListener::bind(metrics_addr).await.unwrap();
+        axum::serve(listener, app)
+            .await
+            .unwrap();
+    });
+
+    let grpc = tokio::spawn(async move {
+        info!("🚀 Starting gRPC server on {} with observability enabled", grpc_addr);
+        Server::builder()
+            .add_service(FabricServiceServer::new(grpc_service))
+            .serve(grpc_addr)
+            .await
+    });
+
+    let ws = tokio::spawn(async move {
+        let app = Router::new()
+            .route("/ws", get(ws_handler))
+            .with_state(app_state);
+        info!("🌐 Starting WebSocket server on {}", ws_addr);
+        let listener = tokio::net::TcpListener::bind(ws_addr).await.unwrap();
+        axum::serve(listener, app)
+            .await
+            .unwrap();
+    });
+
+    info!("🎯 Nexus Prime Core initialized with Tiger Lily compliance");
+    info!("📊 Metrics available at: http://0.0.0.0:8080/metrics");
+    info!("🏥 Health check available at: http://0.0.0.0:8080/health");
+
+    let (grpc_res, ws_res, _metrics_res) = tokio::join!(grpc, ws, metrics_server);
+    grpc_res??;
+    ws_res;
+    Ok(())
+}
+
+async fn command_processor(
+    mut command_rx: mpsc::Receiver<FabricCommand>,
+    fabric_manager: FabricManager,
+) {
+    info!("⚙️ Command processor started with enhanced observability");
+    while let Some(command) = command_rx.recv().await {
+        let correlation_id = Uuid::new_v4().to_string();
+        info!(
+            correlation_id = %correlation_id,
+            command_type = %command.command_type,
+            parameters = ?command.parameters,
+            "📝 Command received for processing"
+        );
+        
+        match command.command_type.as_str() {
+            "DEPLOY_AGENT" => {
+                let agent_name = command
+                    .parameters
+                    .get("name")
+                    .cloned()
+                    .unwrap_or_default();
+                let agent_type = command
+                    .parameters
+                    .get("type")
+                    .cloned()
+                    .unwrap_or_default();
+                let target_node_id = command.target_id;
+
+                if agent_name.is_empty() || agent_type.is_empty() || target_node_id.is_empty() {
+                    warn!("Invalid DEPLOY_AGENT command: missing parameters.");
+                    continue;
+                }
+
+                info!(
+                    "Executing DEPLOY_AGENT: name={}, type={}, target_node={}",
+                    agent_name, agent_type, target_node_id
+                );
+                fabric_manager
+                    .deploy_agent(target_node_id, agent_name, agent_type)
+                    .await;
+            }
+            "STOP_AGENT" => {
+                let target_agent_id = command.target_id;
+                 if target_agent_id.is_empty() {
+                    warn!("Invalid STOP_AGENT command: missing target_id.");
+                    continue;
+                }
+                info!("Executing STOP_AGENT: target_agent={}", target_agent_id);
+                fabric_manager.stop_agent(target_agent_id).await;
+            }
+            "MIGRATE_AGENT" => {
+                let target_agent_id = command.target_id;
+                let destination_node_id = command
+                    .parameters
+                    .get("destination_node")
+                    .cloned()
+                    .unwrap_or_default();
+
+                if target_agent_id.is_empty() || destination_node_id.is_empty() {
+                    warn!("Invalid MIGRATE_AGENT command: missing parameters.");
+                    continue;
+                }
+
+                info!(
+                    "Executing MIGRATE_AGENT: agent={}, destination={}",
+                    target_agent_id, destination_node_id
+                );
+                fabric_manager
+                    .migrate_agent(target_agent_id, destination_node_id)
+                    .await;
+            }
+            _ => {
+                warn!("Received unknown command type: {}", command.command_type);
+            }
+        }
+    }
+    info!("Command processor shut down.");
+}
+
+async fn periodic_pruner(fabric_manager: FabricManager) {
+    info!("Periodic pruner started.");
+    let mut interval = tokio::time::interval(Duration::from_secs(300)); // Every 5 minutes
+    loop {
+        interval.tick().await;
+        info!("Running periodic stale entity prune.");
+        fabric_manager.prune_stale_entities().await;
+    }
+}

@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  gcnp:
+    build: .
+    image: omnimesh/gcnp:latest
+    container_name: gcnp
+    environment:
+      - NEXUS_PRIME_ADDR=host.docker.internal:50051
+    restart: unless-stopped
+    # Uncomment and adjust for host networking if needed
+    # network_mode: host
