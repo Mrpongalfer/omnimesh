@@ -1,0 +1,238 @@
+syntax = "proto3";
+
+package nexus.orchestrator.v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/omnimesh/nexus-orchestrator/proto/v1";
+
+// NexusOrchestrator service provides the main API gateway for the LoL Nexus system
+service NexusOrchestrator {
+  // Health check endpoint
+  rpc HealthCheck(google.protobuf.Empty) returns (HealthResponse);
+  
+  // Process natural language commands
+  rpc ProcessCommand(CommandRequest) returns (CommandResponse);
+  
+  // Start conversational session
+  rpc StartConversation(ConversationRequest) returns (ConversationResponse);
+  
+  // Continue conversation with context
+  rpc ContinueConversation(ConversationRequest) returns (ConversationResponse);
+  
+  // Get system status and metrics
+  rpc GetSystemStatus(google.protobuf.Empty) returns (SystemStatusResponse);
+  
+  // Deploy services
+  rpc DeployService(DeploymentRequest) returns (DeploymentResponse);
+  
+  // Get service logs
+  rpc GetLogs(LogRequest) returns (LogResponse);
+  
+  // Stream real-time events
+  rpc StreamEvents(google.protobuf.Empty) returns (stream EventMessage);
+  
+  // Execute system commands
+  rpc ExecuteCommand(ExecuteRequest) returns (ExecuteResponse);
+  
+  // Get conversation history
+  rpc GetConversationHistory(HistoryRequest) returns (HistoryResponse);
+  
+  // Update user preferences
+  rpc UpdatePreferences(PreferencesRequest) returns (PreferencesResponse);
+}
+
+// Health check response
+message HealthResponse {
+  string status = 1;
+  string version = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  repeated ServiceHealth services = 4;
+}
+
+message ServiceHealth {
+  string name = 1;
+  string status = 2;
+  string health = 3;
+  double cpu_usage = 4;
+  double memory_usage = 5;
+  int64 uptime_seconds = 6;
+}
+
+// Command processing
+message CommandRequest {
+  string command = 1;
+  string session_id = 2;
+  map<string, string> context = 3;
+  string user_id = 4;
+}
+
+message CommandResponse {
+  string response = 1;
+  string intent = 2;
+  double confidence = 3;
+  map<string, string> entities = 4;
+  repeated string suggestions = 5;
+  string session_id = 6;
+  bool requires_action = 7;
+  ActionRequest action = 8;
+}
+
+message ActionRequest {
+  string type = 1;
+  string target = 2;
+  map<string, string> parameters = 3;
+}
+
+// Conversational AI
+message ConversationRequest {
+  string message = 1;
+  string session_id = 2;
+  string user_id = 3;
+  map<string, string> context = 4;
+  repeated ConversationMessage history = 5;
+}
+
+message ConversationResponse {
+  string response = 1;
+  string session_id = 2;
+  DialogueState dialogue_state = 3;
+  repeated string follow_up_options = 4;
+  double confidence = 5;
+  string intent = 6;
+  map<string, string> entities = 7;
+}
+
+message ConversationMessage {
+  string speaker = 1; // "user" or "ai"
+  string content = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string intent = 4;
+  double confidence = 5;
+  map<string, string> entities = 6;
+}
+
+message DialogueState {
+  string current_topic = 1;
+  repeated string user_goals = 2;
+  repeated string completed_tasks = 3;
+  repeated string pending_actions = 4;
+  map<string, string> preferences = 5;
+  map<string, string> session_context = 6;
+}
+
+// System status
+message SystemStatusResponse {
+  string overall_status = 1;
+  repeated ServiceHealth services = 2;
+  SystemMetrics metrics = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message SystemMetrics {
+  double total_cpu_usage = 1;
+  double total_memory_usage = 2;
+  double network_io_in = 3;
+  double network_io_out = 4;
+  double disk_io_read = 5;
+  double disk_io_write = 6;
+  int64 active_connections = 7;
+  int64 total_requests = 8;
+}
+
+// Deployment
+message DeploymentRequest {
+  string service = 1;
+  string environment = 2;
+  string version = 3;
+  map<string, string> config = 4;
+  bool force = 5;
+}
+
+message DeploymentResponse {
+  string deployment_id = 1;
+  string status = 2;
+  string message = 3;
+  google.protobuf.Timestamp started_at = 4;
+  repeated DeploymentStep steps = 5;
+}
+
+message DeploymentStep {
+  string name = 1;
+  string status = 2;
+  string message = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+// Logging
+message LogRequest {
+  string service = 1;
+  string level = 2;
+  int32 limit = 3;
+  google.protobuf.Timestamp since = 4;
+  string filter = 5;
+}
+
+message LogResponse {
+  repeated LogEntry logs = 1;
+}
+
+message LogEntry {
+  google.protobuf.Timestamp timestamp = 1;
+  string level = 2;
+  string component = 3;
+  string message = 4;
+  map<string, string> metadata = 5;
+}
+
+// Event streaming
+message EventMessage {
+  string event_type = 1;
+  string source = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  map<string, string> data = 4;
+  string severity = 5;
+}
+
+// Command execution
+message ExecuteRequest {
+  string command = 1;
+  repeated string args = 2;
+  map<string, string> environment = 3;
+  string working_directory = 4;
+  int32 timeout_seconds = 5;
+}
+
+message ExecuteResponse {
+  int32 exit_code = 1;
+  string stdout = 2;
+  string stderr = 3;
+  google.protobuf.Timestamp started_at = 4;
+  google.protobuf.Timestamp finished_at = 5;
+}
+
+// Conversation history
+message HistoryRequest {
+  string session_id = 1;
+  string user_id = 2;
+  int32 limit = 3;
+  google.protobuf.Timestamp since = 4;
+}
+
+message HistoryResponse {
+  repeated ConversationMessage messages = 1;
+  string session_id = 2;
+}
+
+// User preferences
+message PreferencesRequest {
+  string user_id = 1;
+  map<string, string> preferences = 2;
+}
+
+message PreferencesResponse {
+  string user_id = 1;
+  map<string, string> preferences = 2;
+  google.protobuf.Timestamp updated_at = 3;
+}
