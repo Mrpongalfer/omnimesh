@@ -1,0 +1,18 @@
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"🚀 Starting GitOps Automation - Tungsten Grade v3.0.0","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"⚙️ Running in TEST MODE - limited functionality","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"⚙️ Test Mode: Checking system requirements...","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"⚙️ Checking system requirements...","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"DEBUG","message":"Operation 'system_check' completed in .018s","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"SUCCESS","message":"✅ System requirements verified","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"🧠 Test Mode: Parsing repository information...","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"🧠 Parsing repository information...","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"Repository: mrpongalfer/PONGEX","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"Clone directory: /tmp/gitops_workspace/PONGEX","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"🛡️ Test Mode: Testing authentication setup...","pid":596848}
+{"timestamp":"2025-07-10 09:35:44","level":"INFO","message":"🛡️ Setting up GitHub authentication...","pid":596848}
+{"timestamp":"2025-07-10 09:35:45","level":"INFO","message":"GitHub CLI already authenticated","pid":596848}
+{"timestamp":"2025-07-10 09:35:45","level":"SUCCESS","message":"GitHub CLI authentication configured","pid":596848}
+{"timestamp":"2025-07-10 09:35:45","level":"DEBUG","message":"Operation 'auth_setup' completed in .965s","pid":596848}
+{"timestamp":"2025-07-10 09:35:45","level":"SUCCESS","message":"✅ Test mode completed successfully!","pid":596848}
+{"timestamp":"2025-07-10 09:35:45","level":"INFO","message":"To run full automation, use: ./gitops-automation.sh --repo https://github.com/mrpongalfer/PONGEX.git","pid":596848}
+{"timestamp":"2025-07-10 09:35:45","level":"INFO","message":"Generating performance report...","pid":596848}

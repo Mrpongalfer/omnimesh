@@ -1,0 +1,2 @@
+go: github.com/charmbracelet/fang@v0.3.0 requires go >= 1.24.0; switching to go1.24.4
+package github.com/charmbracelet/fang is not a main package

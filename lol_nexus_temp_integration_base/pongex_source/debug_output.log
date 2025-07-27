@@ -1,0 +1,53 @@
+[0;34m[2025-07-10 09:53:15] [INFO] Loading configuration from .gitops.env[0m
+ ╔═══════════════════════════════════════════════════════════════════╗
+ ║                                                                   ║
+ ║              GitOps Automation - Tungsten Grade                  ║
+ ║                         Version 3.0.0                            ║
+ ║                                                                   ║
+ ║     🚀 Advanced Git automation with AI-driven self-healing       ║
+ ║     🧠 Intelligent error recovery and adaptation                 ║
+ ║     🛡️ Enterprise-grade security and best practices              ║
+ ║     ⚙️ Zero-configuration repository management                   ║
+ ║                                                                   ║
+ ╚═══════════════════════════════════════════════════════════════════╝
+[0;34m[2025-07-10 09:53:15] [INFO] 🚀 Starting GitOps Automation - Tungsten Grade v3.0.0[0m
+[0;34m[2025-07-10 09:53:15] [INFO] ⚙️ Starting monitoring...[0m
+[0;34m[2025-07-10 09:53:15] [INFO] ⚙️ Checking system requirements...[0m
+[0;35m[2025-07-10 09:53:15] [DEBUG] Operation 'system_check' completed in .014s[0m
+[0;32m[2025-07-10 09:53:15] [SUCCESS] ✅ System requirements verified[0m
+[0;34m[2025-07-10 09:53:15] [INFO] 🧠 Parsing repository information...[0m
+[0;34m[2025-07-10 09:53:15] [INFO] Repository: mrpongalfer/gitops-manual-test[0m
+[0;34m[2025-07-10 09:53:15] [INFO] Clone directory: /tmp/gitops_workspace/gitops-manual-test[0m
+[0;34m[2025-07-10 09:53:15] [INFO] 🛡️ Setting up GitHub authentication...[0m
+[0;34m[2025-07-10 09:53:16] [INFO] GitHub CLI already authenticated[0m
+[0;32m[2025-07-10 09:53:16] [SUCCESS] GitHub CLI authentication configured[0m
+[0;35m[2025-07-10 09:53:16] [DEBUG] Operation 'auth_setup' completed in .712s[0m
+[0;34m[2025-07-10 09:53:16] [INFO] 🚀 Cloning repository...[0m
+[1;33m[2025-07-10 09:53:16] [WARN] Repository directory exists, removing...[0m
+[0;34m[2025-07-10 09:53:16] [INFO] Attempting git_clone (attempt 1/3)[0m
+Cloning into 'gitops-manual-test'...
+warning: You appear to have cloned an empty repository.
+[0;32m[2025-07-10 09:53:16] [SUCCESS] git_clone succeeded on attempt 1[0m
+[0;34m[2025-07-10 09:53:16] [INFO] Empty repository detected, initializing with basic structure...[0m
+[0;34m[2025-07-10 09:53:16] [INFO] Setting up initial repository structure...[0m
+[main (root-commit) 2935507] Initial commit: Repository structure and documentation
+ 3 files changed, 83 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 LICENSE
+ create mode 100644 README.md
+[0;32m[2025-07-10 09:53:16] [SUCCESS] Empty repository initialized with basic structure[0m
+[0;35m[2025-07-10 09:53:16] [DEBUG] Operation 'clone' completed in .791s[0m
+[0;32m[2025-07-10 09:53:16] [SUCCESS] ✅ Repository cloned successfully[0m
+[0;34m[2025-07-10 09:53:16] [INFO] 🧠 Analyzing repository structure...[0m
+[0;34m[2025-07-10 09:53:16] [INFO] Repository Analysis Results:[0m
+[0;34m[2025-07-10 09:53:16] [INFO]   Branch: main[0m
+[0;34m[2025-07-10 09:53:16] [INFO]   Last commit: 2935507 - Initial commit: Repository structure and documentation (The Architect, 0 seconds ago)[0m
+[0;34m[2025-07-10 09:53:16] [INFO]   File count: 30[0m
+[0;34m[2025-07-10 09:53:16] [INFO]   Directory size: 204K[0m
+[0;34m[2025-07-10 09:53:16] [INFO]   Project type: Unknown[0m
+[0;34m[2025-07-10 09:53:16] [INFO]   CI/CD: None detected[0m
+[0;35m[2025-07-10 09:53:16] [DEBUG] Operation 'analysis' completed in .080s[0m
+[0;34m[2025-07-10 09:53:16] [INFO] ⚙️ Setting up CI/CD pipeline...[0m
+[0;34m[2025-07-10 09:53:16] [INFO] Creating GitHub Actions workflow...[0m
+./gitops-automation.sh: line 684: create_generic_workflow: command not found
+[0;34m[2025-07-10 09:53:16] [INFO] Generating performance report...[0m

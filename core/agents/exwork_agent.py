@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
-import argparse
-import base64
-import datetime
+"""
+ExWork Agent - Trinity Convergence Integration
+Advanced autonomous agent system from PONGEX integrated into LoL Nexus
+
+This module provides the primary autonomous agent capabilities,
+integrating PONGEX's ExWork system with the Trinity architecture.
+"""
+
+import asyncio
+import binascii
 import json
 import logging
 import os
-import shlex
+import re
 import shutil
 import subprocess
 import sys
 import time
 import uuid
-import binascii
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 from dotenv import load_dotenv

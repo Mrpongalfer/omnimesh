@@ -1,0 +1,122 @@
+[2025-07-25 22:33:31] [INFO] Starting Trinity system validation...
+[2025-07-25 22:33:31] [INFO] Python detected: 3.10.12
+[2025-07-25 22:33:31] [INFO] Directory validated: core
+[2025-07-25 22:33:31] [INFO] Directory validated: config
+[2025-07-25 22:33:31] [INFO] Directory validated: interfaces
+[2025-07-25 22:33:31] [INFO] Directory validated: platform
+[2025-07-25 22:33:31] [INFO] Directory validated: automation
+[2025-07-25 22:33:31] [INFO] Core component validated: nexus_orchestrator.py
+[2025-07-25 22:33:31] [INFO] Core component validated: exwork_agent.py
+[2025-07-25 22:33:31] [INFO] Core component validated: noa_module.py
+[2025-07-25 22:33:31] [INFO] Core component validated: rust_bridge.py
+[2025-07-25 22:33:31] [INFO] Core component validated: go_proxy_manager.py
+[2025-07-25 22:33:31] [INFO] Configuration file found
+[2025-07-25 22:33:31] [INFO] CLI interface available
+[2025-07-25 22:33:31] [SUCCESS] System validation completed
+[2025-07-25 22:33:31] [INFO] Installing Trinity dependencies...
+[2025-07-25 22:33:31] [INFO] Installing Python dependencies from requirements.txt
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: textual>=0.73.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (3.7.0)
+Requirement already satisfied: pydantic>=2.8.2 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 7)) (2.11.7)
+Requirement already satisfied: pyyaml>=6.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 8)) (6.0.2)
+Requirement already satisfied: rich>=13.7.1 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 9)) (14.0.0)
+Requirement already satisfied: docker>=7.1.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 10)) (7.1.0)
+Requirement already satisfied: questionary>=2.0.1 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 11)) (2.1.0)
+Requirement already satisfied: psutil>=6.0.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 12)) (7.0.0)
+Requirement already satisfied: typer>=0.12.3 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 13)) (0.16.0)
+Requirement already satisfied: openai>=1.35.15 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 14)) (1.93.1)
+Requirement already satisfied: aiohttp>=3.9.5 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (3.12.13)
+Collecting aiofiles>=23.2.0
+  Downloading aiofiles-24.1.0-py3-none-any.whl (15 kB)
+Requirement already satisfied: websockets>=12.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 17)) (15.0.1)
+Requirement already satisfied: prometheus-client>=0.20.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 18)) (0.22.1)
+Requirement already satisfied: httpx>=0.27.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 19)) (0.28.1)
+Collecting click>=8.1.7
+  Downloading click-8.2.1-py3-none-any.whl (102 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.2/102.2 KB 469.7 kB/s eta 0:00:00
+Requirement already satisfied: dataclasses-json>=0.6.7 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 21)) (0.6.7)
+Collecting toml>=0.10.2
+  Downloading toml-0.10.2-py2.py3-none-any.whl (16 kB)
+Collecting loguru>=0.7.2
+  Downloading loguru-0.7.3-py3-none-any.whl (61 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.6/61.6 KB 626.2 kB/s eta 0:00:00
+Requirement already satisfied: fastapi>=0.111.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 26)) (0.115.14)
+Requirement already satisfied: uvicorn[standard]>=0.30.1 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 27)) (0.35.0)
+Requirement already satisfied: asyncio-mqtt>=0.13.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 28)) (0.16.2)
+Requirement already satisfied: kubernetes>=27.0.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (33.1.0)
+Requirement already satisfied: redis>=4.6.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 32)) (6.2.0)
+Requirement already satisfied: gitpython>=3.1.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 33)) (3.1.44)
+Requirement already satisfied: requests>=2.31.0 in /home/pong/.local/lib/python3.10/site-packages (from -r /home/pong/Documents/OMNIMESH/requirements.txt (line 34)) (2.32.4)
+Requirement already satisfied: typing-extensions<5.0.0,>=4.4.0 in /usr/local/lib/python3.10/dist-packages (from textual>=0.73.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (4.14.0)
+Requirement already satisfied: platformdirs<5,>=3.6.0 in /usr/local/lib/python3.10/dist-packages (from textual>=0.73.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (4.3.8)
+Requirement already satisfied: markdown-it-py[linkify,plugins]>=2.1.0 in /home/pong/.local/lib/python3.10/site-packages (from textual>=0.73.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (3.0.0)
+Requirement already satisfied: annotated-types>=0.6.0 in /home/pong/.local/lib/python3.10/site-packages (from pydantic>=2.8.2->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 7)) (0.7.0)
+Requirement already satisfied: pydantic-core==2.33.2 in /home/pong/.local/lib/python3.10/site-packages (from pydantic>=2.8.2->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 7)) (2.33.2)
+Requirement already satisfied: typing-inspection>=0.4.0 in /home/pong/.local/lib/python3.10/site-packages (from pydantic>=2.8.2->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 7)) (0.4.1)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /home/pong/.local/lib/python3.10/site-packages (from rich>=13.7.1->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 9)) (2.19.2)
+Requirement already satisfied: urllib3>=1.26.0 in /usr/lib/python3/dist-packages (from docker>=7.1.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 10)) (1.26.5)
+Requirement already satisfied: prompt_toolkit<4.0,>=2.0 in /home/pong/.local/lib/python3.10/site-packages (from questionary>=2.0.1->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 11)) (3.0.51)
+Requirement already satisfied: shellingham>=1.3.0 in /home/pong/.local/lib/python3.10/site-packages (from typer>=0.12.3->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 13)) (1.5.4)
+Requirement already satisfied: tqdm>4 in /home/pong/.local/lib/python3.10/site-packages (from openai>=1.35.15->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 14)) (4.67.1)
+Requirement already satisfied: sniffio in /home/pong/.local/lib/python3.10/site-packages (from openai>=1.35.15->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 14)) (1.3.1)
+Requirement already satisfied: jiter<1,>=0.4.0 in /home/pong/.local/lib/python3.10/site-packages (from openai>=1.35.15->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 14)) (0.10.0)
+Requirement already satisfied: anyio<5,>=3.5.0 in /home/pong/.local/lib/python3.10/site-packages (from openai>=1.35.15->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 14)) (4.9.0)
+Requirement already satisfied: distro<2,>=1.7.0 in /usr/lib/python3/dist-packages (from openai>=1.35.15->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 14)) (1.7.0)
+Requirement already satisfied: async-timeout<6.0,>=4.0 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (5.0.1)
+Requirement already satisfied: propcache>=0.2.0 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (0.3.2)
+Requirement already satisfied: attrs>=17.3.0 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (25.3.0)
+Requirement already satisfied: aiohappyeyeballs>=2.5.0 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (2.6.1)
+Requirement already satisfied: multidict<7.0,>=4.5 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (6.6.3)
+Requirement already satisfied: yarl<2.0,>=1.17.0 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (1.20.1)
+Requirement already satisfied: frozenlist>=1.1.1 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (1.7.0)
+Requirement already satisfied: aiosignal>=1.1.2 in /home/pong/.local/lib/python3.10/site-packages (from aiohttp>=3.9.5->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 15)) (1.4.0)
+Requirement already satisfied: idna in /usr/lib/python3/dist-packages (from httpx>=0.27.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 19)) (3.3)
+Requirement already satisfied: httpcore==1.* in /home/pong/.local/lib/python3.10/site-packages (from httpx>=0.27.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 19)) (1.0.9)
+Requirement already satisfied: certifi in /usr/lib/python3/dist-packages (from httpx>=0.27.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 19)) (2020.6.20)
+Requirement already satisfied: h11>=0.16 in /home/pong/.local/lib/python3.10/site-packages (from httpcore==1.*->httpx>=0.27.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 19)) (0.16.0)
+Requirement already satisfied: typing-inspect<1,>=0.4.0 in /home/pong/.local/lib/python3.10/site-packages (from dataclasses-json>=0.6.7->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 21)) (0.9.0)
+Requirement already satisfied: marshmallow<4.0.0,>=3.18.0 in /home/pong/.local/lib/python3.10/site-packages (from dataclasses-json>=0.6.7->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 21)) (3.26.1)
+Requirement already satisfied: starlette<0.47.0,>=0.40.0 in /home/pong/.local/lib/python3.10/site-packages (from fastapi>=0.111.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 26)) (0.46.2)
+Collecting httptools>=0.6.3
+  Downloading httptools-0.6.4-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (442 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 442.1/442.1 KB 595.6 kB/s eta 0:00:00
+Collecting watchfiles>=0.13
+  Downloading watchfiles-1.1.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (453 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 453.1/453.1 KB 524.7 kB/s eta 0:00:00
+Collecting uvloop>=0.15.1
+  Downloading uvloop-0.21.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 1.4 MB/s eta 0:00:00
+Requirement already satisfied: python-dotenv>=0.13 in /usr/local/lib/python3.10/dist-packages (from uvicorn[standard]>=0.30.1->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 27)) (1.1.1)
+Requirement already satisfied: paho-mqtt>=1.6.0 in /usr/local/lib/python3.10/dist-packages (from asyncio-mqtt>=0.13.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 28)) (2.1.0)
+Requirement already satisfied: google-auth>=1.0.1 in /home/pong/.local/lib/python3.10/site-packages (from kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (2.40.3)
+Requirement already satisfied: websocket-client!=0.40.0,!=0.41.*,!=0.42.*,>=0.32.0 in /home/pong/.local/lib/python3.10/site-packages (from kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (1.8.0)
+Requirement already satisfied: python-dateutil>=2.5.3 in /home/pong/.local/lib/python3.10/site-packages (from kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (2.9.0.post0)
+Requirement already satisfied: requests-oauthlib in /home/pong/.local/lib/python3.10/site-packages (from kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (2.0.0)
+Requirement already satisfied: six>=1.9.0 in /usr/lib/python3/dist-packages (from kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (1.16.0)
+Requirement already satisfied: durationpy>=0.7 in /home/pong/.local/lib/python3.10/site-packages (from kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (0.10)
+Requirement already satisfied: oauthlib>=3.2.2 in /home/pong/.local/lib/python3.10/site-packages (from kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (3.3.1)
+Requirement already satisfied: gitdb<5,>=4.0.1 in /home/pong/.local/lib/python3.10/site-packages (from gitpython>=3.1.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 33)) (4.0.12)
+Requirement already satisfied: charset_normalizer<4,>=2 in /home/pong/.local/lib/python3.10/site-packages (from requests>=2.31.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 34)) (3.4.2)
+Requirement already satisfied: exceptiongroup>=1.0.2 in /home/pong/.local/lib/python3.10/site-packages (from anyio<5,>=3.5.0->openai>=1.35.15->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 14)) (1.3.0)
+Requirement already satisfied: smmap<6,>=3.0.1 in /home/pong/.local/lib/python3.10/site-packages (from gitdb<5,>=4.0.1->gitpython>=3.1.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 33)) (5.0.2)
+Requirement already satisfied: pyasn1-modules>=0.2.1 in /home/pong/.local/lib/python3.10/site-packages (from google-auth>=1.0.1->kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (0.4.2)
+Requirement already satisfied: rsa<5,>=3.1.4 in /home/pong/.local/lib/python3.10/site-packages (from google-auth>=1.0.1->kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (4.9.1)
+Requirement already satisfied: cachetools<6.0,>=2.0.0 in /home/pong/.local/lib/python3.10/site-packages (from google-auth>=1.0.1->kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (5.5.2)
+Requirement already satisfied: mdurl~=0.1 in /home/pong/.local/lib/python3.10/site-packages (from markdown-it-py[linkify,plugins]>=2.1.0->textual>=0.73.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (0.1.2)
+Requirement already satisfied: mdit-py-plugins in /home/pong/.local/lib/python3.10/site-packages (from markdown-it-py[linkify,plugins]>=2.1.0->textual>=0.73.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (0.4.2)
+Requirement already satisfied: linkify-it-py<3,>=1 in /home/pong/.local/lib/python3.10/site-packages (from markdown-it-py[linkify,plugins]>=2.1.0->textual>=0.73.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (2.0.3)
+Requirement already satisfied: packaging>=17.0 in /usr/local/lib/python3.10/dist-packages (from marshmallow<4.0.0,>=3.18.0->dataclasses-json>=0.6.7->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 21)) (25.0)
+Requirement already satisfied: wcwidth in /home/pong/.local/lib/python3.10/site-packages (from prompt_toolkit<4.0,>=2.0->questionary>=2.0.1->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 11)) (0.2.13)
+Requirement already satisfied: mypy-extensions>=0.3.0 in /usr/local/lib/python3.10/dist-packages (from typing-inspect<1,>=0.4.0->dataclasses-json>=0.6.7->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 21)) (1.1.0)
+Requirement already satisfied: uc-micro-py in /home/pong/.local/lib/python3.10/site-packages (from linkify-it-py<3,>=1->markdown-it-py[linkify,plugins]>=2.1.0->textual>=0.73.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 6)) (1.0.3)
+Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /home/pong/.local/lib/python3.10/site-packages (from pyasn1-modules>=0.2.1->google-auth>=1.0.1->kubernetes>=27.0.0->-r /home/pong/Documents/OMNIMESH/requirements.txt (line 29)) (0.6.1)
+Installing collected packages: uvloop, toml, loguru, httptools, click, aiofiles, watchfiles
+  Attempting uninstall: loguru
+    Found existing installation: loguru 0.6.0
+    Uninstalling loguru-0.6.0:
+      Successfully uninstalled loguru-0.6.0
+ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+notify-py 0.3.43 requires loguru<=0.6.0,>=0.5.3, but you have loguru 0.7.3 which is incompatible.
+pipx 1.0.0 requires argcomplete>=1.9.4, but you have argcomplete 1.8.1 which is incompatible.
+Successfully installed aiofiles-24.1.0 click-8.2.1 httptools-0.6.4 loguru-0.7.3 toml-0.10.2 uvloop-0.21.0 watchfiles-1.1.0
+[2025-07-25 22:34:55] [SUCCESS] Python dependencies installed successfully

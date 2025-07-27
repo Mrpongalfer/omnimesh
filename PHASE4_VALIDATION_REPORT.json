@@ -1,0 +1,122 @@
+{
+  "validation_timestamp": "2025-07-27T14:33:20.608864",
+  "total_validation_time_seconds": 15.751697,
+  "all_tests_passed": false,
+  "passed_tests": 5,
+  "total_tests": 10,
+  "success_rate": 50.0,
+  "detailed_results": {
+    "1. Environment & Dependencies": {
+      "success": true,
+      "details": [
+        "Python version: 3.10.12",
+        "Package numpy: Available",
+        "Package scipy: Available",
+        "Package sklearn: Available",
+        "Package networkx: Available",
+        "Package pandas: Available",
+        "Package matplotlib: Available",
+        "Package seaborn: Available",
+        "Package cryptography: Available",
+        "Package nltk: Available",
+        "Package toml: Available",
+        "Package psutil: Available",
+        "Component file: core/agents/behavior_monitor.py",
+        "Component file: interfaces/cli/mobile_behavior_collector.go",
+        "Component file: core/nexus_orchestrator.py",
+        "Component file: platform/rust_engine/drap_prophet.py",
+        "Component file: core/agents/proactive_trigger.py"
+      ],
+      "errors": []
+    },
+    "2. Behavior Monitor Pipeline": {
+      "success": false,
+      "errors": [
+        "Behavior monitor validation error: stat: path should be string, bytes, os.PathLike or integer, not dict"
+      ]
+    },
+    "3. Mobile Behavior Collector": {
+      "success": true,
+      "details": [
+        "Mobile behavior collector Go file exists",
+        "Component found: BehaviorCollector",
+        "Component found: TermuxAPIClient",
+        "Component found: collectBehaviorData",
+        "Component found: anonymizeData",
+        "Component found: sendToOrchestrator",
+        "Error handling implemented",
+        "Encryption capabilities present"
+      ],
+      "errors": []
+    },
+    "4. Probabilistic Intent Graph": {
+      "success": false,
+      "errors": [
+        "PIG validation error: 'ProbabilisticIntentGraph' object has no attribute 'predict_intents'"
+      ]
+    },
+    "5. DRAP Implementation": {
+      "success": true,
+      "details": [
+        "DRAP prophet file exists",
+        "DRAP initialization successful",
+        "DRAP initialized 1 compute nodes",
+        "ML predictors initialized",
+        "Resource metrics collection working"
+      ],
+      "errors": []
+    },
+    "6. Proactive Action Trigger": {
+      "success": true,
+      "details": [
+        "Proactive trigger initialization successful",
+        "Action registry has 8 actions",
+        "Risk calculation working: 0.206",
+        "Action triggering working: 1 actions"
+      ],
+      "errors": []
+    },
+    "7. Nexus Orchestrator Integration": {
+      "success": true,
+      "details": [
+        "Nexus Orchestrator initialization successful",
+        "Configuration loaded successfully",
+        "PIG integrated successfully",
+        "Proactive trigger integrated successfully",
+        "Context collection working",
+        "System metrics working"
+      ],
+      "errors": []
+    },
+    "8. End-to-End Integration": {
+      "success": false,
+      "errors": [
+        "Integration validation error: 'ProbabilisticIntentGraph' object has no attribute 'predict_intents'"
+      ]
+    },
+    "9. Performance & Scalability": {
+      "success": false,
+      "errors": [
+        "Performance validation error: 'ProbabilisticIntentGraph' object has no attribute 'predict_intents'"
+      ]
+    },
+    "10. Production Readiness": {
+      "success": false,
+      "details": [
+        "Error handling working - rejected invalid evidence",
+        "Logging properly configured",
+        "Default configuration fallback working",
+        "Database file exists: pig_knowledge.db",
+        "Database file exists: behavior_patterns.db",
+        "Database file exists: drap_knowledge.db",
+        "Data anonymization implemented",
+        "Privacy preservation enabled",
+        "Secure data transmission",
+        "Input validation present"
+      ],
+      "errors": [
+        "Not handling empty context gracefully"
+      ]
+    }
+  }
+}
