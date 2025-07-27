@@ -2,7 +2,7 @@
 # Complete build, test, and deployment automation
 # Version: Ultimate Trinity Architecture
 
-.PHONY: all build test clean install health deploy setup help
+.PHONY: all build test clean install health deploy setup help install-cli
 .DEFAULT_GOAL := help
 
 # Configuration
@@ -107,6 +107,43 @@ create-dirs:
 install-deps: install-python install-rust install-go install-node
 	@echo "$(GREEN)✅ [$(TIMESTAMP)] All dependencies installed$(NC)"
 
+## Install CLI binary (lolnexus) - God Tier Interface
+install-cli: build-cli
+	@echo "$(BLUE)🎯 [$(TIMESTAMP)] Installing LoL Nexus God Tier Interface binary...$(NC)"
+	@if [ -f $(INTERFACES_PATH)/cli/lolnexus ]; then \
+		mkdir -p ~/bin; \
+		cp $(INTERFACES_PATH)/cli/lolnexus ~/bin/lolnexus; \
+		chmod +x ~/bin/lolnexus; \
+		echo "$(GREEN)✅ [$(TIMESTAMP)] lolnexus binary installed to ~/bin/lolnexus$(NC)"; \
+		echo "$(CYAN)💡 Add ~/bin to your PATH if not already present$(NC)"; \
+		echo "$(CYAN)💡 Run 'lolnexus' from anywhere to access the God Tier Interface$(NC)"; \
+	else \
+		echo "$(RED)❌ [$(TIMESTAMP)] CLI binary not found, running build first...$(NC)"; \
+		$(MAKE) build-cli; \
+		if [ -f $(INTERFACES_PATH)/cli/lolnexus ]; then \
+			mkdir -p ~/bin; \
+			cp $(INTERFACES_PATH)/cli/lolnexus ~/bin/lolnexus; \
+			chmod +x ~/bin/lolnexus; \
+			echo "$(GREEN)✅ [$(TIMESTAMP)] lolnexus binary installed to ~/bin/lolnexus$(NC)"; \
+		else \
+			echo "$(RED)❌ [$(TIMESTAMP)] Failed to build CLI binary$(NC)"; \
+			exit 1; \
+		fi \
+	fi
+
+## Build CLI binary
+build-cli:
+	@echo "$(BLUE)🎯 [$(TIMESTAMP)] Building LoL Nexus God Tier Interface CLI...$(NC)"
+	@if [ -d $(INTERFACES_PATH)/cli ]; then \
+		cd $(INTERFACES_PATH)/cli && \
+		$(GO) mod tidy && \
+		$(GO) build -o lolnexus -ldflags="-s -w" . && \
+		echo "$(GREEN)✅ [$(TIMESTAMP)] CLI binary 'lolnexus' built successfully$(NC)"; \
+	else \
+		echo "$(RED)❌ [$(TIMESTAMP)] CLI source directory not found$(NC)"; \
+		exit 1; \
+	fi
+
 ## Install Python dependencies
 install-python:
 	@echo "$(BLUE)🐍 [$(TIMESTAMP)] Installing Python dependencies...$(NC)"
@@ -160,7 +197,7 @@ setup-config:
 	fi
 
 ## Build all Trinity components
-build: build-core build-rust build-go build-frontend
+build: build-core build-rust build-go build-cli build-frontend
 	@echo "$(GREEN)✅ [$(TIMESTAMP)] Complete Trinity build successful$(NC)"
 
 ## Build core Python components
@@ -201,6 +238,19 @@ build-go:
 		echo 'module nexus_go_services\n\ngo 1.21' > $(GO_SERVICES_PATH)/go.mod; \
 		echo 'package main\n\nimport "fmt"\n\nfunc main() { fmt.Println("LoL Nexus Go Services - Stub") }' > $(GO_SERVICES_PATH)/main.go; \
 		cd $(GO_SERVICES_PATH) && $(GO) build -o bin/ ./... 2>/dev/null || echo "$(YELLOW)Go build skipped$(NC)"; \
+	fi
+
+## Build CLI binary
+build-cli:
+	@echo "$(BLUE)🎯 [$(TIMESTAMP)] Building LoL Nexus God Tier Interface CLI...$(NC)"
+	@if [ -d $(INTERFACES_PATH)/cli ]; then \
+		cd $(INTERFACES_PATH)/cli && \
+		$(GO) mod tidy && \
+		$(GO) build -o lolnexus -ldflags="-s -w" . && \
+		echo "$(GREEN)✅ [$(TIMESTAMP)] CLI binary 'lolnexus' built successfully$(NC)"; \
+	else \
+		echo "$(RED)❌ [$(TIMESTAMP)] CLI source directory not found$(NC)"; \
+		exit 1; \
 	fi
 
 ## Build web frontend

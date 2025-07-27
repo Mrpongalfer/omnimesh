@@ -1,46 +1,37 @@
-ai:
-  features:
-  - natural_language_commands
-  - predictive_scaling
-  - anomaly_detection
-  model: gpt-4
-  provider: openai
-environment:
-  available:
-  - development
-  - staging
-  - production
-  current: development
-monitoring:
-  grafana:
-    enabled: true
-    port: 3000
-  jaeger:
-    enabled: true
-    port: 16686
-  prometheus:
-    enabled: true
-    port: 9090
-paths:
-  docs: /home/pong/Documents/OMNIMESH/docs
-  frontend: /home/pong/Documents/OMNIMESH/FRONTEND/ui-solidjs
-  go_proxies: /home/pong/Documents/OMNIMESH/BACKEND/go-node-proxies
-  nexus_core: /home/pong/Documents/OMNIMESH/BACKEND/nexus-prime-core
-  scripts: /home/pong/Documents/OMNIMESH/scripts
-security:
-  certificate_path: /etc/ssl/certs/omnimesh
-  secret_encryption: aes-256-gcm
-  tls_enabled: true
-services:
-  go_proxies:
-    image: go-node-proxies:latest
-    ports:
-    - 9090
-    - 9443
-    replicas: 3
-  nexus_core:
-    health_check: /health
-    image: nexus-prime-core:latest
-    ports:
-    - 8080
-    - 8443
+# LoL Nexus Core Orchestrator Configuration
+# Phase 4: True Intent Resonance & Proactive Orchestration
+
+[orchestrator]
+port = 8080
+proactive_enabled = true
+collection_interval_seconds = 30
+
+[proactive_trigger]
+confidence_threshold = 0.75
+risk_threshold = 0.3
+action_cooldown_minutes = 5
+
+[pig]
+learning_rate = 0.01
+alpha_prior = 1.0
+beta_prior = 1.0
+max_nodes = 1000
+pig_database = "pig_knowledge.db"
+
+[behavior]
+collection_interval_seconds = 30
+anonymization_enabled = true
+privacy_mode = "high"
+
+[drap]
+learning_rate = 0.01
+discount_factor = 0.95
+exploration_rate = 0.1
+prediction_window_minutes = 30
+retraining_hours = 2
+drap_database = "drap_knowledge.db"
+
+[security]
+encryption_enabled = true
+privacy_preservation = true
+data_anonymization = true
