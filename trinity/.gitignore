@@ -1,0 +1,391 @@
+# =============================================================================
+# OMNIMESH PROJECT .GITIGNORE
+# Phase 4: True Intent Resonance & Proactive Orchestration
+# =============================================================================
+
+# Python
+# --------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+# --------------------
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.env/
+
+# PyInstaller
+# -----------
+*.manifest
+*.spec
+
+# Installer logs
+# ---------------
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+# ----------------------------
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+# ----------------
+.ipynb_checkpoints
+
+# IPython
+# -------
+profile_default/
+ipython_config.py
+
+# pyenv
+# -----
+.python-version
+
+# pipenv
+# ------
+Pipfile.lock
+
+# poetry
+# ------
+poetry.lock
+
+# celery
+# ------
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+# ---------------------
+*.sage.py
+
+# Environments
+# ------------
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+# -----------------------
+.spyderproject
+.spyproject
+
+# Rope project settings
+# ---------------------
+.ropeproject
+
+# mkdocs documentation
+# --------------------
+/site
+
+# mypy
+# ----
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+# -----------------
+.pyre/
+
+# pytype static type analyzer
+# ---------------------------
+.pytype/
+
+# Cython debug symbols
+# --------------------
+cython_debug/
+
+# =============================================================================
+# OMNIMESH SPECIFIC FILES
+# =============================================================================
+
+# Database Files (Phase 4 Knowledge Stores)
+# ------------------------------------------
+*.db
+*.sqlite
+*.sqlite3
+behavior_patterns.db
+pig_knowledge.db
+drap_knowledge.db
+nexus_cache.db
+
+# Configuration Files with Secrets
+# ---------------------------------
+.env
+.env.local
+.env.production
+.env.staging
+*config.toml
+*config.yaml
+omni-config.toml
+omni-config.yaml
+nexus_config.toml
+
+# Keep example configs
+!*.example
+!config.example.*
+!.env.example
+
+# Log Files
+# ---------
+*.log
+logs/
+*.log.*
+trinity_startup.log
+nexus_orchestrator.log
+behavior_monitor.log
+drap_prophet.log
+proactive_trigger.log
+
+# Temporary Files
+# ---------------
+tmp/
+temp/
+.tmp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# OS Generated Files
+# ------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE and Editor Files
+# --------------------
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+# Keep VS Code workspace file
+!omnimesh.code-workspace
+
+# Node.js (for frontend components)
+# ----------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.npm
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.node_repl_history
+*.tgz
+*.tar.gz
+.yarn-integrity
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.next/
+out/
+.nuxt/
+dist/
+.cache/
+
+# Rust (for rust_engine components)
+# ----------------------------------
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Go (for mobile behavior collector)
+# ----------------------------------
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+vendor/
+
+# Docker
+# ------
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+.docker/
+
+# Kubernetes
+# ----------
+secrets/
+*.key
+*.crt
+*.pem
+
+# Terraform
+# ---------
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfvars
+!*.tfvars.example
+
+# Machine Learning Models & Data
+# -------------------------------
+*.pkl
+*.pickle
+*.joblib
+*.model
+*.h5
+*.hdf5
+datasets/
+models/
+checkpoints/
+wandb/
+mlruns/
+
+# NLTK Data (downloaded at runtime)
+# ----------------------------------
+nltk_data/
+
+# Phase 4 Specific Caches
+# ------------------------
+.pig_cache/
+.drap_cache/
+.proactive_cache/
+behavior_cache/
+intent_cache/
+
+# Performance and Profiling
+# --------------------------
+*.prof
+*.pstats
+.prof/
+
+# Security and Secrets
+# ---------------------
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets/
+auth_tokens/
+api_keys/
+certificates/
+
+# Backup Files
+# ------------
+*.backup
+*.bak
+*.orig
+*~
+Makefile.backup*
+
+# Phase 4 Runtime Generated Files
+# --------------------------------
+PHASE*_VALIDATION_REPORT.json
+ACTUALIZATION_REPORT.md
+DEPLOYMENT_SUCCESS.md
+phase4_results/
+validation_reports/
+
+# Compiled Executables
+# ---------------------
+omni
+omnimesh
+nexus_cli
+
+# Large Files and Media
+# ---------------------
+*.mp4
+*.avi
+*.mov
+*.wmv
+*.flv
+*.wav
+*.mp3
+*.aac
+*.ogg
+*.wma
+*.img
+*.iso
+*.dmg
+
+# =============================================================================
+# KEEP IMPORTANT FILES (Override above patterns)
+# =============================================================================
+!README.md
+!LICENSE
+!requirements.txt
+!Makefile
+!.github/
+!docs/
+!CONTRIBUTING.md
+!INSTALLATION_GUIDE.md
+!C2_CENTER_GUIDE.md

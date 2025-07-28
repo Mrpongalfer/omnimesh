@@ -1,0 +1,255 @@
+/* Omni TUI CSS - Trinity Enhanced v5.0 */
+
+:root {
+    --terminal-bg: #000011;
+    --terminal-fg: #00ff00;
+    --terminal-border: #004400;
+    --terminal-accent: #ffff00;
+    --terminal-error: #ff0000;
+    --terminal-warning: #ff8800;
+    --terminal-info: #00aaff;
+}
+
+.tui-container {
+    background: var(--terminal-bg);
+    color: var(--terminal-fg);
+    font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+    font-size: 14px;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.tui-header {
+    background: var(--terminal-bg);
+    border-bottom: 2px solid var(--terminal-border);
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.tui-title {
+    color: var(--terminal-accent);
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 10px var(--terminal-accent);
+    margin: 0;
+}
+
+.tui-layout {
+    display: flex;
+    height: calc(100vh - 80px);
+}
+
+.tui-sidebar {
+    width: 300px;
+    background: var(--terminal-bg);
+    border-right: 2px solid var(--terminal-border);
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.tui-main {
+    flex: 1;
+    background: var(--terminal-bg);
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.tui-panel {
+    border: 1px solid var(--terminal-border);
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(0, 68, 0, 0.1);
+}
+
+.tui-panel-title {
+    color: var(--terminal-accent);
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--terminal-border);
+    padding-bottom: 5px;
+}
+
+.tui-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.tui-menu-item {
+    padding: 5px 10px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tui-menu-item:hover {
+    background: rgba(0, 255, 0, 0.1);
+    border-left-color: var(--terminal-fg);
+}
+
+.tui-menu-item.active {
+    background: rgba(0, 255, 0, 0.2);
+    border-left-color: var(--terminal-accent);
+    color: var(--terminal-accent);
+}
+
+.tui-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.tui-status-item {
+    background: rgba(0, 68, 0, 0.2);
+    border: 1px solid var(--terminal-border);
+    padding: 10px;
+    text-align: center;
+}
+
+.tui-status-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--terminal-accent);
+    display: block;
+}
+
+.tui-status-label {
+    font-size: 12px;
+    color: var(--terminal-fg);
+    opacity: 0.8;
+}
+
+.tui-terminal {
+    background: #000000;
+    border: 2px solid var(--terminal-border);
+    padding: 10px;
+    height: 300px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.tui-prompt {
+    color: var(--terminal-accent);
+}
+
+.tui-command {
+    color: var(--terminal-fg);
+}
+
+.tui-output {
+    color: var(--terminal-info);
+    margin-left: 20px;
+}
+
+.tui-error {
+    color: var(--terminal-error);
+    margin-left: 20px;
+}
+
+.tui-warning {
+    color: var(--terminal-warning);
+    margin-left: 20px;
+}
+
+.tui-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.tui-table th,
+.tui-table td {
+    border: 1px solid var(--terminal-border);
+    padding: 8px;
+    text-align: left;
+}
+
+.tui-table th {
+    background: rgba(0, 68, 0, 0.3);
+    color: var(--terminal-accent);
+    font-weight: bold;
+}
+
+.tui-table tr:nth-child(even) {
+    background: rgba(0, 68, 0, 0.1);
+}
+
+.tui-progress {
+    background: rgba(0, 68, 0, 0.2);
+    border: 1px solid var(--terminal-border);
+    height: 20px;
+    position: relative;
+    margin: 5px 0;
+}
+
+.tui-progress-bar {
+    background: var(--terminal-fg);
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.tui-progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    color: var(--terminal-bg);
+    font-weight: bold;
+}
+
+.tui-ascii-art {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    line-height: 1;
+    white-space: pre;
+    color: var(--terminal-border);
+    text-align: center;
+    margin: 20px 0;
+}
+
+.tui-blink {
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.tui-glow {
+    text-shadow: 0 0 5px currentColor;
+}
+
+.tui-matrix {
+    animation: matrix 20s linear infinite;
+}
+
+@keyframes matrix {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--terminal-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--terminal-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--terminal-fg);
+}

@@ -12,6 +12,12 @@ Phase 4: True Intent Resonance & Proactive Orchestration
 The central orchestration engine for the LoL Nexus Compute Fabric.
 Integrates high-performance computing, natural language interfaces,
 distributed system orchestration, and predictive intelligence.
+
+PHASE 4 ENHANCEMENTS:
+- Integrated DRAP (Dynamic Resource Allocation Prophet) with RL-based optimization
+- Proactive action triggering based on PIG confidence thresholds
+- Real-time behavior pattern analysis and resource prediction
+- Event-driven architecture with WebSocket orchestration proxy
 """
 
 import asyncio
@@ -40,6 +46,8 @@ import sqlite3
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import networkx as nx
+import websockets
+import aiohttp
 
 # HTTP Server for API Gateway
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -48,6 +56,11 @@ import threading
 
 # Natural Language Processing
 import nltk
+
+# Phase 4 Trinity Components
+from agents.pig_engine import ProbabilisticIntentGraph, create_pig_engine
+from agents.behavior_monitor import LocalBehaviorAgent, create_behavior_monitor
+from fabric_proxies.drap_orchestration_proxy import DRAPOrchestrationProxy, create_drap_proxy
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer

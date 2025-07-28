@@ -328,3 +328,34 @@ iso27001_compliant = true
 enabled = true
 auto_optimization = true
 performance_profiling = true
+
+# Phase 4: True Intent Resonance & Proactive Orchestration Configuration
+[orchestrator.phase4]
+port = 8080
+proactive_enabled = true
+collection_interval_seconds = 30
+
+[proactive_trigger]
+confidence_threshold = 0.75
+risk_threshold = 0.3
+action_cooldown_minutes = 5
+
+[pig]
+learning_rate = 0.01
+alpha_prior = 1.0
+beta_prior = 1.0
+max_nodes = 1000
+pig_database = "pig_knowledge.db"
+
+[behavior_monitor]
+collection_interval_seconds = 30
+anonymization_enabled = true
+privacy_mode = "high"
+
+[drap]
+learning_rate = 0.01
+discount_factor = 0.95
+exploration_rate = 0.1
+prediction_window_minutes = 30
+retraining_hours = 2
+drap_database = "drap_knowledge.db"

@@ -1,0 +1,120 @@
+// Copied from Phase 1 nexus-prime-core/proto/fabric.proto
+
+syntax = "proto3";
+
+package fabric;
+
+import "google/protobuf/empty.proto"; // For empty messages
+
+option go_package = "github.com/omnimesh/go-node-proxies/fabricpb;fabricpb";
+
+// --- Enums ---
+enum AgentType {
+  AGENT_TYPE_UNSPECIFIED = 0;
+  AGENT_TYPE_PC = 1;
+  AGENT_TYPE_CHROMEBOX = 2;
+  AGENT_TYPE_AI_AGENT = 3;
+}
+
+enum StatusType {
+  STATUS_TYPE_UNSPECIFIED = 0;
+  STATUS_TYPE_NODE = 1;
+  STATUS_TYPE_AI_AGENT = 2;
+}
+
+// --- Messages ---
+
+// General response for commands
+message CommandResponse {
+  string status = 1;
+  string message = 2;
+}
+
+// Request to register a new compute node (PC or Chromebox proxy)
+message AgentRegistrationRequest {
+  string ip_address = 1;
+  string capabilities = 2;
+  AgentType agent_type = 3;
+  string proxy_listen_address = 4; // The address (e.g., "127.0.0.1:50052") the proxy is listening on
+}
+
+// Response to agent registration
+message AgentRegistrationResponse {
+  string node_id = 1; // Assigned by Nexus Prime
+  string status = 2;
+  string message = 3;
+}
+
+// Update message for node or AI agent status
+message AgentStatusUpdate {
+  string node_id = 1; // ID of the node sending the update
+  StatusType status_type = 2;
+  string status_value = 3; // e.g., "Online", "Processing", "Error"
+  optional TelemetryData telemetry_data = 4; // Detailed metrics (optional)
+  optional string current_task = 5; // For AI Agents or nodes with specific tasks
+  optional float task_progress = 6; // 0.0 to 1.0
+}
+
+// Detailed telemetry data
+message TelemetryData {
+  float cpu_utilization = 1; // 0.0 to 1.0
+  float memory_utilization = 2; // 0.0 to 1.0
+  float network_in_kbps = 3;
+  float network_out_kbps = 4;
+  // Add specific sensor data, GPU usage, etc.
+}
+
+// Fabric-wide events for real-time UI updates
+message FabricEvent {
+  string event_id = 1;
+  string timestamp = 2; // ISO 8601 string
+  string event_type = 3; // e.g., "NODE_ONLINE", "AGENT_TASK_COMPLETED", "SECURITY_ALERT"
+  string message = 4;
+  map<string, string> metadata = 5; // Key-value pairs for context
+  optional TelemetryData telemetry = 6; // Event-specific telemetry
+}
+
+// Commands issued by the Architect (via UI) to the fabric
+message FabricCommand {
+  string command_id = 1;
+  string command_type = 2; // e.g., "DEPLOY_AGENT", "STOP_AGENT", "MIGRATE_AGENT"
+  string target_id = 3;    // e.g., Node ID or Agent ID
+  map<string, string> parameters = 4;
+}
+
+message DeployAgentRequest {
+  string agent_id = 1;
+  string agent_type = 2;
+  string name = 3;
+  // Potentially include configuration details or a link to the agent's package
+  map<string, string> parameters = 4;
+}
+
+message StopAgentRequest {
+  string agent_id = 1;
+}
+
+// --- Services ---
+
+// Nexus Prime Fabric Management Service
+service FabricService {
+  // Compute Node/Proxy registers itself with Nexus Prime
+  rpc RegisterAgent (AgentRegistrationRequest) returns (AgentRegistrationResponse);
+
+  // Compute Node/Proxy sends status updates and telemetry
+  rpc UpdateAgentStatus (AgentStatusUpdate) returns (CommandResponse);
+
+  // UI/Mobile app subscribes to real-time fabric events
+  rpc StreamFabricEvents (google.protobuf.Empty) returns (stream FabricEvent);
+
+  // Architect issues commands to the fabric (e.g., via UI)
+  rpc SendFabricCommand(FabricCommand) returns (CommandResponse);
+}
+
+// Service definition for the node proxies, called by the Nexus Prime Core
+service NodeProxyService {
+  // Instructs a node to deploy a new AI agent
+  rpc DeployAgent(DeployAgentRequest) returns (CommandResponse);
+  // Instructs a node to stop a running AI agent
+  rpc StopAgent(StopAgentRequest) returns (CommandResponse);
+}

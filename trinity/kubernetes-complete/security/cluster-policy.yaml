@@ -1,0 +1,215 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: omnimesh-security-policy
+  annotations:
+    policies.kyverno.io/title: OmniMesh Security Policy
+    policies.kyverno.io/category: Security
+    policies.kyverno.io/description: |
+      Comprehensive security policy for OmniMesh production deployments.
+      Enforces security context, resource limits, and other hardening measures.
+spec:
+  validationFailureAction: enforce
+  background: true
+  rules:
+  # Require security context for all pods
+  - name: require-security-context
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Security context is required with runAsNonRoot=true"
+      pattern:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: ">0"
+            fsGroup: ">0"
+          containers:
+          - name: "*"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                - ALL
+              runAsNonRoot: true
+              runAsUser: ">0"
+  
+  # Require resource limits and requests
+  - name: require-resource-limits
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Resource limits and requests are required"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            resources:
+              limits:
+                memory: "?*"
+                cpu: "?*"
+              requests:
+                memory: "?*"
+                cpu: "?*"
+  
+  # Prohibit privileged containers
+  - name: prohibit-privileged
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Privileged containers are not allowed"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            securityContext:
+              privileged: false
+  
+  # Require image pull policy
+  - name: require-image-pull-policy
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Image pull policy must be Always or IfNotPresent"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            imagePullPolicy: "Always | IfNotPresent"
+  
+  # Require signed images
+  - name: require-signed-images
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Only signed images from trusted registry are allowed"
+      pattern:
+        spec:
+          containers:
+          - name: "*"
+            image: "ghcr.io/mrpongalfer/omnimesh/*"
+  
+  # Require service account
+  - name: require-service-account
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Service account must be specified"
+      pattern:
+        spec:
+          serviceAccountName: "?*"
+  
+  # Prohibit host namespace usage
+  - name: prohibit-host-namespaces
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Host namespaces are not allowed"
+      pattern:
+        spec:
+          hostNetwork: false
+          hostPID: false
+          hostIPC: false
+  
+  # Prohibit host path volumes
+  - name: prohibit-host-path
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Host path volumes are not allowed"
+      pattern:
+        spec:
+          volumes:
+          - name: "*"
+            hostPath: "null"
+  
+  # Require labels
+  - name: require-labels
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Service
+          - Deployment
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Required labels are missing"
+      pattern:
+        metadata:
+          labels:
+            app: "?*"
+            version: "?*"
+            component: "?*"
+            part-of: "omnimesh"
+  
+  # Require annotations
+  - name: require-annotations
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          - Service
+          - Deployment
+          namespaces:
+          - omnimesh
+          - omnimesh-system
+    validate:
+      message: "Security annotations are required"
+      pattern:
+        metadata:
+          annotations:
+            security.omnimesh.io/scan-date: "?*"
+            security.omnimesh.io/scan-result: "?*"

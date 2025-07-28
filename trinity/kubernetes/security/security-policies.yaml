@@ -1,0 +1,369 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: omnimesh
+  labels:
+    name: omnimesh
+    security-policy: strict
+    compliance: soc2
+    environment: production
+  annotations:
+    security.omnimesh.dev/scan-date: "2024-01-01"
+    security.omnimesh.dev/compliance-level: "enterprise"
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-network-policy
+  namespace: omnimesh
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh-system
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 8443
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh-system
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 8443
+    - protocol: TCP
+      port: 6443
+  - to: [] # Allow DNS
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-deny-all
+  namespace: omnimesh
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: omnimesh-service-account
+  namespace: omnimesh
+  annotations:
+    kubernetes.io/enforce-mountable-secrets: "true"
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: omnimesh-role
+  namespace: omnimesh
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "configmaps"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["networking.k8s.io"]
+  resources: ["networkpolicies"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: omnimesh-role-binding
+  namespace: omnimesh
+subjects:
+- kind: ServiceAccount
+  name: omnimesh-service-account
+  namespace: omnimesh
+roleRef:
+  kind: Role
+  name: omnimesh-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: omnimesh-tls-secret
+  namespace: omnimesh
+type: kubernetes.io/tls
+data:
+  # These should be replaced with actual certificates
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0t...
+  tls.key: LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0t...
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: omnimesh-security-config
+  namespace: omnimesh
+data:
+  security-policy.yaml: |
+    security:
+      enforceHttps: true
+      corsOrigins:
+        - "https://omnimesh.local"
+        - "https://app.omnimesh.local"
+      rateLimiting:
+        enabled: true
+        requestsPerMinute: 100
+        burstSize: 50
+      authentication:
+        jwtSecret: "{{ .Values.security.jwtSecret }}"
+        tokenExpiry: "30m"
+        refreshTokenExpiry: "24h"
+      encryption:
+        algorithm: "AES-256-GCM"
+        keyRotationInterval: "24h"
+  nginx.conf: |
+    server {
+        listen 8080;
+        server_name localhost;
+        
+        # Security headers
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' wss:; frame-ancestors 'none';" always;
+        
+        # Security settings
+        server_tokens off;
+        client_max_body_size 10M;
+        client_body_timeout 60s;
+        client_header_timeout 60s;
+        
+        location / {
+            root /usr/share/nginx/html;
+            index index.html index.htm;
+            try_files $uri $uri/ /index.html;
+            
+            # Cache control
+            expires 1h;
+            add_header Cache-Control "public, immutable";
+        }
+        
+        location /api {
+            proxy_pass http://omnimesh-api:8080;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            
+            # Security headers for API
+            proxy_set_header X-Request-ID $request_id;
+            proxy_connect_timeout 30s;
+            proxy_send_timeout 30s;
+            proxy_read_timeout 30s;
+        }
+        
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+    }
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: omnimesh-psp
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  seLinux:
+    rule: 'RunAsAny'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: omnimesh-psp-use
+rules:
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs: ['use']
+  resourceNames:
+  - omnimesh-psp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: omnimesh-psp-use
+roleRef:
+  kind: ClusterRole
+  name: omnimesh-psp-use
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: omnimesh-service-account
+  namespace: omnimesh
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: omnimesh-limits
+  namespace: omnimesh
+spec:
+  limits:
+  - default:
+      cpu: "500m"
+      memory: "512Mi"
+    defaultRequest:
+      cpu: "100m"
+      memory: "128Mi"
+    type: Container
+  - max:
+      cpu: "2"
+      memory: "2Gi"
+    type: Container
+  - max:
+      storage: "10Gi"
+    type: PersistentVolumeClaim
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: omnimesh-quota
+  namespace: omnimesh
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: "8Gi"
+    limits.cpu: "8"
+    limits.memory: "16Gi"
+    persistentvolumeclaims: "10"
+    pods: "20"
+    services: "10"
+    secrets: "20"
+    configmaps: "20"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: omnimesh-monitoring-config
+  namespace: omnimesh
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+    
+    rule_files:
+      - "/etc/prometheus/rules/*.yml"
+    
+    scrape_configs:
+      - job_name: 'omnimesh-api'
+        static_configs:
+          - targets: ['omnimesh-api:8080']
+        metrics_path: /metrics
+        scrape_interval: 10s
+        
+      - job_name: 'omnimesh-ui'
+        static_configs:
+          - targets: ['omnimesh-ui:8080']
+        metrics_path: /metrics
+        scrape_interval: 30s
+        
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - omnimesh
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+  
+  alert_rules.yml: |
+    groups:
+    - name: omnimesh-alerts
+      rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 10% for 5 minutes"
+          
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is above 90%"
+          
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod is crash looping"
+          description: "Pod {{ $labels.pod }} is restarting frequently"

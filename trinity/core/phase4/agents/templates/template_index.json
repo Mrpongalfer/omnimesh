@@ -1,0 +1,209 @@
+{
+  "template_index": {
+    "version": "3.0.0",
+    "last_updated": "2025-07-23T15:56:25-05:00",
+    "description": "Aether Agent's internal template library for autonomous code composition",
+    "templates": {
+      "file_operations": {
+        "csv_reader": {
+          "file": "code_snippets/csv_reader.py",
+          "description": "Robust CSV file reading with error handling and type inference",
+          "keywords": ["csv", "file", "read", "data", "pandas"],
+          "language": "python",
+          "parameters": ["file_path", "delimiter", "encoding"]
+        },
+        "json_processor": {
+          "file": "code_snippets/json_processor.py",
+          "description": "JSON file processing with validation and transformation",
+          "keywords": ["json", "file", "process", "validate", "transform"],
+          "language": "python",
+          "parameters": ["input_file", "output_file", "schema"]
+        },
+        "file_watcher": {
+          "file": "code_snippets/file_watcher.py",
+          "description": "Real-time file system monitoring and event handling",
+          "keywords": ["watch", "monitor", "file", "event", "inotify"],
+          "language": "python",
+          "parameters": ["watch_path", "event_types", "callback"]
+        }
+      },
+      "network_operations": {
+        "port_scanner": {
+          "file": "code_snippets/port_scanner.py",
+          "description": "Multi-threaded network port scanner with service detection",
+          "keywords": ["network", "scan", "port", "security", "recon"],
+          "language": "python",
+          "parameters": ["target_host", "port_range", "timeout", "threads"]
+        },
+        "http_client": {
+          "file": "code_snippets/http_client.py",
+          "description": "Robust HTTP client with retry logic and error handling",
+          "keywords": ["http", "client", "request", "api", "web"],
+          "language": "python",
+          "parameters": ["url", "method", "headers", "data", "timeout"]
+        },
+        "dns_resolver": {
+          "file": "code_snippets/dns_resolver.py",
+          "description": "DNS resolution with multiple record types and caching",
+          "keywords": ["dns", "resolve", "network", "lookup", "cache"],
+          "language": "python",
+          "parameters": ["hostname", "record_type", "dns_server"]
+        }
+      },
+      "system_operations": {
+        "process_manager": {
+          "file": "code_snippets/process_manager.py",
+          "description": "Cross-platform process management and monitoring",
+          "keywords": ["process", "manage", "monitor", "system", "psutil"],
+          "language": "python",
+          "parameters": ["command", "args", "timeout", "capture_output"]
+        },
+        "system_info": {
+          "file": "code_snippets/system_info.py",
+          "description": "Comprehensive system information gathering",
+          "keywords": ["system", "info", "hardware", "os", "resources"],
+          "language": "python",
+          "parameters": ["info_type", "detailed"]
+        },
+        "log_analyzer": {
+          "file": "code_snippets/log_analyzer.py",
+          "description": "Log file analysis with pattern matching and anomaly detection",
+          "keywords": ["log", "analyze", "pattern", "anomaly", "security"],
+          "language": "python",
+          "parameters": ["log_file", "patterns", "time_range"]
+        }
+      },
+      "crypto_operations": {
+        "encryption_handler": {
+          "file": "code_snippets/encryption_handler.py",
+          "description": "AES encryption/decryption with key derivation",
+          "keywords": ["encrypt", "decrypt", "aes", "crypto", "security"],
+          "language": "python",
+          "parameters": ["data", "password", "operation"]
+        },
+        "hash_calculator": {
+          "file": "code_snippets/hash_calculator.py",
+          "description": "Multi-algorithm hash calculation and verification",
+          "keywords": ["hash", "checksum", "integrity", "sha256", "md5"],
+          "language": "python",
+          "parameters": ["data", "algorithm", "verify_hash"]
+        },
+        "key_generator": {
+          "file": "code_snippets/key_generator.py",
+          "description": "Cryptographic key generation and management",
+          "keywords": ["key", "generate", "crypto", "rsa", "ecdsa"],
+          "language": "python",
+          "parameters": ["key_type", "key_size", "output_format"]
+        }
+      },
+      "data_processing": {
+        "data_transformer": {
+          "file": "code_snippets/data_transformer.py",
+          "description": "Generic data transformation and cleaning pipeline",
+          "keywords": ["data", "transform", "clean", "pipeline", "etl"],
+          "language": "python",
+          "parameters": ["input_data", "transformations", "output_format"]
+        },
+        "ml_predictor": {
+          "file": "code_snippets/ml_predictor.py",
+          "description": "Machine learning model inference and prediction",
+          "keywords": ["ml", "predict", "model", "inference", "ai"],
+          "language": "python",
+          "parameters": ["model_path", "input_data", "preprocessing"]
+        },
+        "time_series_analyzer": {
+          "file": "code_snippets/time_series_analyzer.py",
+          "description": "Time series data analysis and forecasting",
+          "keywords": ["time", "series", "analyze", "forecast", "statistics"],
+          "language": "python",
+          "parameters": ["data", "window_size", "forecast_steps"]
+        }
+      },
+      "database_operations": {
+        "sqlite_manager": {
+          "file": "code_snippets/sqlite_manager.py",
+          "description": "SQLite database operations with connection pooling",
+          "keywords": ["sqlite", "database", "sql", "query", "orm"],
+          "language": "python",
+          "parameters": ["db_path", "query", "parameters"]
+        },
+        "redis_client": {
+          "file": "code_snippets/redis_client.py",
+          "description": "Redis client with connection handling and retry logic",
+          "keywords": ["redis", "cache", "nosql", "key-value", "pubsub"],
+          "language": "python",
+          "parameters": ["host", "port", "operation", "key", "value"]
+        }
+      },
+      "automation_scripts": {
+        "config_manager": {
+          "file": "code_snippets/config_manager.py",
+          "description": "Configuration file management with validation",
+          "keywords": ["config", "manage", "validate", "toml", "yaml"],
+          "language": "python",
+          "parameters": ["config_file", "operation", "key", "value"]
+        },
+        "backup_system": {
+          "file": "code_snippets/backup_system.py",
+          "description": "Automated backup system with compression and encryption",
+          "keywords": ["backup", "compress", "encrypt", "restore", "archive"],
+          "language": "python",
+          "parameters": ["source_path", "backup_path", "compression", "encryption"]
+        },
+        "deployment_manager": {
+          "file": "code_snippets/deployment_manager.py",
+          "description": "Application deployment and rollback management",
+          "keywords": ["deploy", "rollback", "manage", "release", "automation"],
+          "language": "python",
+          "parameters": ["app_path", "target_env", "operation", "version"]
+        }
+      },
+      "security_tools": {
+        "vulnerability_scanner": {
+          "file": "code_snippets/vulnerability_scanner.py",
+          "description": "Basic vulnerability assessment and reporting",
+          "keywords": ["vulnerability", "scan", "security", "assess", "report"],
+          "language": "python",
+          "parameters": ["target", "scan_type", "output_format"]
+        },
+        "threat_analyzer": {
+          "file": "code_snippets/threat_analyzer.py",
+          "description": "Threat intelligence analysis and correlation",
+          "keywords": ["threat", "analyze", "intelligence", "correlate", "ioc"],
+          "language": "python",
+          "parameters": ["indicators", "sources", "time_range"]
+        },
+        "incident_responder": {
+          "file": "code_snippets/incident_responder.py",
+          "description": "Automated incident response and containment",
+          "keywords": ["incident", "response", "contain", "investigate", "remediate"],
+          "language": "python",
+          "parameters": ["incident_type", "severity", "containment_actions"]
+        }
+      }
+    },
+    "metadata": {
+      "total_templates": 24,
+      "languages": ["python"],
+      "categories": [
+        "file_operations",
+        "network_operations",
+        "system_operations",
+        "crypto_operations",
+        "data_processing",
+        "database_operations",
+        "automation_scripts",
+        "security_tools"
+      ],
+      "usage_stats": {
+        "most_used_templates": [
+          "http_client",
+          "process_manager",
+          "config_manager",
+          "sqlite_manager",
+          "encryption_handler"
+        ]
+      }
+    }
+  }
+}

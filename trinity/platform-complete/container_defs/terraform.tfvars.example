@@ -1,0 +1,41 @@
+# Example Terraform variables file
+# Copy this to terraform.tfvars and update with your values
+
+# Project Configuration
+project_id  = "your-gcp-project-id"
+region      = "us-central1"
+environment = "dev"
+
+# Networking (optional - defaults are usually fine)
+# subnet_cidr   = "10.0.0.0/16"
+# pods_cidr     = "10.1.0.0/16"
+# services_cidr = "10.2.0.0/16"
+# master_cidr   = "172.16.0.0/28"
+
+# GKE Configuration
+kubernetes_version = "1.28"
+use_preemptible    = true  # Set to false for production
+
+# Default Node Pool
+default_pool_machine_type = "e2-standard-4"
+default_pool_min_nodes    = 1
+default_pool_max_nodes    = 10
+
+# AI Agent Node Pool (GPU-enabled)
+ai_pool_machine_type = "g2-standard-4"
+ai_pool_gpu_type     = "nvidia-l4"
+ai_pool_gpu_count    = 1
+ai_pool_min_nodes    = 0
+ai_pool_max_nodes    = 5
+
+# Cloud SQL (optional)
+enable_cloud_sql      = false
+db_tier              = "db-f1-micro"  # Use db-standard-1 or higher for production
+db_availability_type = "ZONAL"        # Use REGIONAL for production
+db_disk_size         = 20
+# db_password        = "your-secure-password"  # Set this for Cloud SQL
+
+# Features
+enable_istio      = true
+enable_monitoring = true
+enable_logging    = true

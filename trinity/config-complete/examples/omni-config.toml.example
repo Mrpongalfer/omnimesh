@@ -1,0 +1,108 @@
+# =============================================================================
+# OMNIMESH CONFIGURATION EXAMPLE
+# Phase 4: True Intent Resonance & Proactive Orchestration
+# =============================================================================
+# Copy this file to omni-config.toml and customize for your environment
+
+[orchestrator]
+# Main orchestrator settings
+port = 8080
+proactive_enabled = true
+collection_interval_seconds = 30
+max_concurrent_actions = 10
+debug_mode = false
+
+[pig]
+# Probabilistic Intent Graph settings
+pig_database = "pig_knowledge.db"
+learning_rate = 0.01
+alpha_prior = 1.0
+beta_prior = 1.0
+max_nodes = 1000
+cache_ttl_minutes = 15
+decay_factor = 0.001
+
+[proactive_trigger]
+# Proactive Action Triggering settings
+confidence_threshold = 0.75
+risk_threshold = 0.3
+action_cooldown_minutes = 5
+max_actions_per_hour = 20
+enable_risk_assessment = true
+
+[behavior]
+# Behavior Monitor settings
+collection_interval_seconds = 30
+anonymization_enabled = true
+privacy_mode = "high"
+data_retention_days = 30
+anonymization_level = "strict"
+
+[drap]
+# Dynamic Resource Allocation Prophet settings
+drap_database = "drap_knowledge.db"
+learning_rate = 0.01
+exploration_rate = 0.1
+discount_factor = 0.95
+memory_size = 10000
+batch_size = 32
+update_frequency_minutes = 5
+
+[api]
+# API Gateway settings
+host = "localhost"
+port = 8080
+enable_cors = true
+rate_limit_per_minute = 1000
+auth_required = false
+# api_key = "your-secret-api-key-here"
+
+[logging]
+# Logging configuration
+level = "INFO"
+log_file = "omnimesh.log"
+max_log_size_mb = 100
+backup_count = 5
+console_output = true
+
+[security]
+# Security settings
+encryption_enabled = true
+# encryption_key = "your-32-byte-encryption-key-here"
+hash_algorithm = "sha256"
+session_timeout_minutes = 60
+
+[mobile]
+# Mobile behavior collector settings
+termux_api_enabled = true
+sensor_collection_enabled = true
+location_tracking_enabled = false  # Set to true if location tracking is desired
+haptic_feedback_enabled = true
+encryption_enabled = true
+
+[database]
+# Database settings
+type = "sqlite"
+# For SQLite (default):
+path = "omnimesh.db"
+# For PostgreSQL (if using):
+# host = "localhost" 
+# port = 5432
+# name = "omnimesh"
+# user = "omnimesh_user"
+# password = "your-database-password"
+
+[performance]
+# Performance tuning
+max_worker_threads = 4
+memory_limit_mb = 1024
+cpu_limit_percent = 80
+gc_threshold = 1000
+optimize_memory = true
+
+[experimental]
+# Experimental features (use with caution)
+enable_advanced_ml = false
+enable_quantum_processing = false
+enable_neural_architecture_search = false
+debug_intent_graph = false

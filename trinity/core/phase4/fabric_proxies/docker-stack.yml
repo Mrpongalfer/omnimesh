@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  gcnp:
+    image: omnimesh/gcnp:latest
+    environment:
+      - NEXUS_PRIME_ADDR=host.docker.internal:50051
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    # Uncomment for host networking if needed
+    # network_mode: host

@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package umcc;
+
+// UMCC (Universal Multi-Component Communication) Protocol
+// Trinity Enhanced v5.0
+
+service UMCCService {
+    rpc SendMessage(MessageRequest) returns (MessageResponse);
+    rpc GetStatus(StatusRequest) returns (StatusResponse);
+    rpc RegisterComponent(RegisterRequest) returns (RegisterResponse);
+    rpc BroadcastEvent(EventRequest) returns (EventResponse);
+}
+
+message MessageRequest {
+    string sender_id = 1;
+    string target_id = 2;
+    string message_type = 3;
+    bytes payload = 4;
+    int64 timestamp = 5;
+}
+
+message MessageResponse {
+    bool success = 1;
+    string message = 2;
+    string response_id = 3;
+}
+
+message StatusRequest {
+    string component_id = 1;
+}
+
+message StatusResponse {
+    string component_id = 1;
+    string status = 2;
+    map<string, string> metrics = 3;
+    int64 last_seen = 4;
+}
+
+message RegisterRequest {
+    string component_id = 1;
+    string component_type = 2;
+    string endpoint = 3;
+    map<string, string> capabilities = 4;
+}
+
+message RegisterResponse {
+    bool success = 1;
+    string message = 2;
+    string registration_id = 3;
+}
+
+message EventRequest {
+    string event_type = 1;
+    string source_id = 2;
+    bytes event_data = 3;
+    int64 timestamp = 4;
+}
+
+message EventResponse {
+    bool success = 1;
+    int32 recipients = 2;
+    string message = 3;
+}

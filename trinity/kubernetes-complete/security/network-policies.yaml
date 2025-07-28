@@ -1,0 +1,182 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-default-deny-all
+  namespace: omnimesh
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-core-ingress
+  namespace: omnimesh
+spec:
+  podSelector:
+    matchLabels:
+      app: omnimesh-core
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: omnimesh-ui
+    - podSelector:
+        matchLabels:
+          app: omnimesh-gateway
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh-system
+      podSelector:
+        matchLabels:
+          app: monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-ui-ingress
+  namespace: omnimesh
+spec:
+  podSelector:
+    matchLabels:
+      app: omnimesh-ui
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: omnimesh-gateway
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh-system
+      podSelector:
+        matchLabels:
+          app: monitoring
+    ports:
+    - protocol: TCP
+      port: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-gateway-ingress
+  namespace: omnimesh
+spec:
+  podSelector:
+    matchLabels:
+      app: omnimesh-gateway
+  policyTypes:
+  - Ingress
+  ingress:
+  - from: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-egress
+  namespace: omnimesh
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow HTTPS to external services
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow internal communication
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh-system
+  # Allow Kubernetes API
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: TCP
+      port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-system-default-deny-all
+  namespace: omnimesh-system
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: omnimesh-system-monitoring
+  namespace: omnimesh-system
+spec:
+  podSelector:
+    matchLabels:
+      app: monitoring
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh
+    ports:
+    - protocol: TCP
+      port: 9090
+    - protocol: TCP
+      port: 3000
+  egress:
+  # Allow DNS
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow scraping metrics from omnimesh namespace
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: omnimesh
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090
+  # Allow external alerting
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
