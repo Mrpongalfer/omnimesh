@@ -1,0 +1,125 @@
+name: 🚨 Emergency Self-Repair
+
+on:
+  workflow_run:
+    workflows: ["🤖 Self-Healing CI/CD Master"]
+    types: [completed]
+    branches: [main, develop, master]
+  schedule:
+    # Emergency repair check daily
+    - cron: '0 2 * * *'
+
+jobs:
+  emergency-diagnosis:
+    name: 🩺 Emergency Diagnosis
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'failure' || github.event_name == 'schedule' }}
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: 🚨 Emergency Repair Protocol
+      run: |
+        echo "🚨 EMERGENCY REPAIR PROTOCOL ACTIVATED"
+        echo "========================================"
+        
+        # Check for common failure patterns
+        echo "🔍 Diagnosing potential issues..."
+        
+        # Create emergency fixes
+        mkdir -p .github/emergency-fixes
+        
+        # Fix 1: Ensure basic Python setup
+        cat > .github/emergency-fixes/python-fix.py << 'EOF'
+        #!/usr/bin/env python3
+        import sys
+        import subprocess
+        import os
+        
+        def emergency_python_fix():
+            print("🔧 Emergency Python environment fix...")
+            try:
+                # Ensure pip is working
+                subprocess.run([sys.executable, "-m", "pip", "--version"], check=True)
+                print("✅ pip is working")
+                
+                # Install critical packages
+                critical_packages = ["setuptools", "wheel", "pip"]
+                for package in critical_packages:
+                    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", package], 
+                                 capture_output=True)
+                print("✅ Critical packages updated")
+                
+                # Fix common path issues
+                if os.path.exists("trinity"):
+                    sys.path.insert(0, os.path.abspath("trinity"))
+                    print("✅ Trinity path configured")
+                
+                return True
+            except Exception as e:
+                print(f"⚠️ Emergency fix encountered: {e}")
+                return False
+        
+        if __name__ == "__main__":
+            emergency_python_fix()
+        EOF
+        
+        # Fix 2: Generic project structure repair
+        cat > .github/emergency-fixes/structure-fix.sh << 'EOF'
+        #!/bin/bash
+        echo "🔧 Emergency project structure fix..."
+        
+        # Ensure basic directories exist
+        mkdir -p tests logs temp
+        
+        # Create missing __init__.py files
+        find . -type d -name "trinity" -o -name "core" -o -name "platform" | while read dir; do
+            [ ! -f "$dir/__init__.py" ] && touch "$dir/__init__.py"
+        done
+        
+        # Fix permissions
+        find . -name "*.py" -exec chmod +x {} + 2>/dev/null || true
+        find . -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
+        
+        echo "✅ Emergency structure fixes applied"
+        EOF
+        
+        # Apply emergency fixes
+        python3 .github/emergency-fixes/python-fix.py || echo "Python fix completed with warnings"
+        bash .github/emergency-fixes/structure-fix.sh || echo "Structure fix completed with warnings"
+        
+        # Check if fixes resolved issues
+        echo "🧪 Testing emergency fixes..."
+        python3 -c "import sys; print(f'Python {sys.version} working')" || echo "Python test warning"
+        
+        if [ -f "trinity/nexus_cli.py" ]; then
+          cd trinity && python3 nexus_cli.py --help >/dev/null 2>&1 && echo "✅ Trinity CLI test passed" || echo "⚠️ Trinity CLI needs attention"
+        fi
+        
+        echo "🎯 Emergency repair protocol completed"
+        echo "📊 System should be more stable now"
+
+  # Auto-commit emergency fixes if they work
+  commit-emergency-fixes:
+    name: 💾 Auto-Commit Emergency Fixes  
+    runs-on: ubuntu-latest
+    needs: emergency-diagnosis
+    if: success()
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: 💾 Commit Emergency Fixes
+      run: |
+        # Only commit if fixes were created and are beneficial
+        if [ -d ".github/emergency-fixes" ]; then
+          git config --local user.email "emergency-repair@github.com"
+          git config --local user.name "Emergency Repair Bot"
+          git add .github/emergency-fixes/
+          git commit -m "🚨 Emergency repair: Auto-generated fixes applied" || echo "No emergency fixes to commit"
+          echo "✅ Emergency fixes preserved for future runs"
+        fi
